@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +14,7 @@ import {
   strategyPrompts,
   compareAIModels
 } from "@/services/trading/aiStrategyService";
-import { getAggregatedModelPerformance, getModelComparisons } from "@/utils/modelMonitoring";
+import { getAggregatedModelPerformance, getModelComparisons } from "@/utils/monitoring";
 
 const AIModelComparison = () => {
   const [selectedPromptId, setSelectedPromptId] = useState<string>(strategyPrompts.medium[0].id);
@@ -24,19 +23,16 @@ const AIModelComparison = () => {
   );
   const [viewCode, setViewCode] = useState<string | null>(null);
   
-  // Get aggregated performance data for models
   const { data: aggregatedPerformance, isLoading: isLoadingPerformance } = useQuery({
     queryKey: ["aggregatedModelPerformance"],
     queryFn: () => getAggregatedModelPerformance(availableAIModels.map(m => m.id)),
   });
   
-  // Get comparison history
   const { data: comparisonHistory, isLoading: isLoadingHistory } = useQuery({
     queryKey: ["modelComparisonHistory"],
     queryFn: () => getModelComparisons(),
   });
   
-  // Get the prompt details
   const getPromptDetails = (promptId: string) => {
     for (const category in strategyPrompts) {
       const prompt = strategyPrompts[category as keyof typeof strategyPrompts].find(p => p.id === promptId);
@@ -47,7 +43,6 @@ const AIModelComparison = () => {
   
   const promptDetails = getPromptDetails(selectedPromptId);
   
-  // Query to run the model comparison
   const { 
     data: comparisonResults, 
     isLoading: isComparing,
@@ -55,10 +50,9 @@ const AIModelComparison = () => {
   } = useQuery({
     queryKey: ["aiModelComparison", selectedPromptId, selectedModels],
     queryFn: () => compareAIModels(selectedPromptId, selectedModels),
-    enabled: false, // Don't run automatically
+    enabled: false,
   });
   
-  // Handle running a comparison
   const handleRunComparison = () => {
     toast.info("Running AI model comparison", {
       description: `Comparing ${selectedModels.length} models on "${promptDetails?.name}" prompt`,
@@ -66,7 +60,6 @@ const AIModelComparison = () => {
     runComparison();
   };
   
-  // Handle toggling a model selection
   const toggleModelSelection = (modelId: string) => {
     if (selectedModels.includes(modelId)) {
       if (selectedModels.length > 1) {
@@ -174,7 +167,6 @@ const AIModelComparison = () => {
                   <div className="space-y-4 mt-4">
                     <h3 className="text-lg font-medium">Results</h3>
                     
-                    {/* Sort results by code quality score */}
                     {[...comparisonResults].sort((a, b) => b.codeQualityScore - a.codeQualityScore).map((result) => {
                       const model = availableAIModels.find(m => m.id === result.modelId);
                       return (
@@ -310,7 +302,6 @@ const AIModelComparison = () => {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Sort models by average code quality score */}
                   {[...aggregatedPerformance]
                     .sort((a, b) => b.avgCodeQualityScore - a.avgCodeQualityScore)
                     .map(perf => {
@@ -406,7 +397,6 @@ const AIModelComparison = () => {
               ) : (
                 <ScrollArea className="h-[500px] pr-4">
                   <div className="space-y-6">
-                    {/* Group by timestamp */}
                     {Array.from(new Set(comparisonHistory.map(c => c.timestamp))).map(timestamp => {
                       const comparisonsForTimestamp = comparisonHistory.filter(c => c.timestamp === timestamp);
                       const firstComparison = comparisonsForTimestamp[0];

@@ -1,4 +1,3 @@
-
 import { TradeSignal } from '../../types/trading';
 import { getTradeSignals as mockGetTradeSignals } from '../mockData';
 import logger from '@/utils/logger';
@@ -6,7 +5,7 @@ import securityUtils from '@/utils/securityUtils';
 import { getCircuitBreaker } from '@/utils/circuitBreaker';
 import featureFlags from '@/utils/featureFlags';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';
-import modelMonitoring from '@/utils/modelMonitoring';
+import { recordModelMetric } from '@/utils/monitoring';
 import { toast } from 'sonner';
 import { withRetry } from './utils';
 
@@ -107,7 +106,7 @@ export const generateTradeSignals = async (modelId: string, symbol: string): Pro
           timestamp: new Date().toISOString()
         };
         
-        modelMonitoring.recordModelMetric(mockMetrics);
+        recordModelMetric(mockMetrics);
       } else {
         logger.warn(`No trade signals generated for ${symbol}`);
         notificationManager.send(
