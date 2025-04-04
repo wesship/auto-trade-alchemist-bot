@@ -56,7 +56,7 @@ export const generateStrategy = async (
           'hard': 0.7
         };
         
-        const performanceFactor = modelPerformanceFactors[modelId] || 
+        const performanceFactor = modelPerformanceFactors[modelId as keyof typeof modelPerformanceFactors] || 
           { quality: 0.7, errors: 0.8, adherence: 0.75 };
         
         // Generate mock scores with some randomness
