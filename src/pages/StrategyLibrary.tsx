@@ -234,7 +234,7 @@ const StrategyLibrary = () => {
                   value={newStrategy.code}
                   onChange={(e) => setNewStrategy({...newStrategy, code: e.target.value})}
                   className="col-span-3 font-mono text-sm h-64"
-                  placeholder="//@version=5\nstrategy(\"My Strategy\", overlay=true)\n\n// Add your strategy code here"
+                  placeholder="//@version=5&#10;strategy(&quot;My Strategy&quot;, overlay=true)&#10;&#10;// Add your strategy code here"
                 />
               </div>
             </div>
