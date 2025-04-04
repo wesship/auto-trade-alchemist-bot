@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -136,10 +136,14 @@ const BacktestVisualization = () => {
                     <XAxis dataKey="month" />
                     <YAxis tickFormatter={(value) => `${value}%`} />
                     <Tooltip formatter={(value) => [`${typeof value === 'number' ? value.toFixed(2) : value}%`, 'Return']} />
-                    <Bar 
-                      dataKey="return" 
-                      fill={(data) => parseFloat(data.return) >= 0 ? "#4caf50" : "#ff5252"}
-                    />
+                    <Bar dataKey="return" fill="#4caf50">
+                      {backtestData.monthlyReturns.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={parseFloat(entry.return.toString()) >= 0 ? "#4caf50" : "#ff5252"} 
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
