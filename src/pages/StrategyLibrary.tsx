@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { BookmarkCheck, Export, Code, Search, Filter, Plus } from "lucide-react";
+import { BookmarkCheck, FileExport, Code, Search, Filter, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StrategyExporter } from "@/components/Strategy/StrategyExporter";
+import StrategyExporter from "@/components/Strategy/StrategyExporter";
 
 // Mock data for saved strategies
 const savedStrategies = [
@@ -323,7 +323,7 @@ const StrategyLibrary = () => {
                 </CardContent>
                 <CardFooter className="flex justify-between pt-5">
                   <Button variant="outline" onClick={() => handleExportStrategy(strategy)}>
-                    <Export className="h-4 w-4 mr-2" />
+                    <FileExport className="h-4 w-4 mr-2" />
                     Export
                   </Button>
                   <Button>
@@ -360,7 +360,7 @@ const StrategyLibrary = () => {
                   
                   <div className="flex gap-2 md:self-end">
                     <Button variant="outline" onClick={() => handleExportStrategy(strategy)}>
-                      <Export className="h-4 w-4 mr-2" />
+                      <FileExport className="h-4 w-4 mr-2" />
                       Export
                     </Button>
                     <Button>

@@ -1,232 +1,354 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area, AreaChart, ComposedChart } from 'recharts';
+import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
-interface BacktestResult {
-  equity: number[];
-  trades: {
-    date: string;
-    type: 'buy' | 'sell';
-    price: number;
-    profit: number;
-    size: number;
-  }[];
-  metrics: {
-    netProfit: number;
-    winRate: number;
-    profitFactor: number;
-    sharpeRatio: number;
-    maxDrawdown: number;
-    avgTradeProfit: number;
-    totalTrades: number;
-    winningTrades: number;
-    losingTrades: number;
-  };
-  equityData: {
-    date: string;
-    equity: number;
-    drawdown: number;
-    price: number;
-  }[];
-  monthlyReturns: {
-    month: string;
-    return: number;
-  }[];
-}
+// Mock backtesting data
+const backtestData = {
+  performance: {
+    netProfit: 8742.50,
+    winRate: 0.67,
+    profitFactor: 2.3,
+    maxDrawdown: 12.4,
+    sharpRatio: 1.8,
+    totalTrades: 73,
+    winningTrades: 49,
+    losingTrades: 24,
+  },
+  trades: [
+    { id: 1, date: '2025-01-05', type: 'LONG', entry: 105.20, exit: 112.45, profit: 7.25, profitPercent: 6.89 },
+    { id: 2, date: '2025-01-12', type: 'LONG', entry: 113.80, exit: 118.30, profit: 4.50, profitPercent: 3.95 },
+    { id: 3, date: '2025-01-20', type: 'LONG', entry: 116.70, exit: 113.20, profit: -3.50, profitPercent: -3.00 },
+    { id: 4, date: '2025-02-03', type: 'LONG', entry: 110.40, exit: 117.85, profit: 7.45, profitPercent: 6.75 },
+    { id: 5, date: '2025-02-15', type: 'LONG', entry: 119.30, exit: 115.60, profit: -3.70, profitPercent: -3.10 },
+    { id: 6, date: '2025-02-27', type: 'LONG', entry: 114.80, exit: 122.35, profit: 7.55, profitPercent: 6.58 },
+    { id: 7, date: '2025-03-10', type: 'LONG', entry: 124.50, exit: 130.75, profit: 6.25, profitPercent: 5.02 },
+    { id: 8, date: '2025-03-22', type: 'LONG', entry: 129.40, exit: 125.60, profit: -3.80, profitPercent: -2.94 },
+  ],
+  equityCurve: [
+    { date: '2025-01-01', equity: 10000 },
+    { date: '2025-01-05', equity: 10689 },
+    { date: '2025-01-12', equity: 11111 },
+    { date: '2025-01-20', equity: 10778 },
+    { date: '2025-02-03', equity: 11505 },
+    { date: '2025-02-15', equity: 11149 },
+    { date: '2025-02-27', equity: 11882 },
+    { date: '2025-03-10', equity: 12478 },
+    { date: '2025-03-22', equity: 12112 },
+    { date: '2025-04-01', equity: 12743 },
+  ],
+  monthlyReturns: [
+    { month: 'Jan 2025', return: 7.78 },
+    { month: 'Feb 2025', return: 3.44 },
+    { month: 'Mar 2025', return: 5.31 },
+    { month: 'Apr 2025', return: 2.73 },
+  ],
+  drawdowns: [
+    { date: '2025-01-01', drawdown: 0 },
+    { date: '2025-01-05', drawdown: 0 },
+    { date: '2025-01-12', drawdown: 0 },
+    { date: '2025-01-20', drawdown: -3.00 },
+    { date: '2025-02-03', drawdown: 0 },
+    { date: '2025-02-15', drawdown: -3.10 },
+    { date: '2025-02-27', drawdown: 0 },
+    { date: '2025-03-10', drawdown: 0 },
+    { date: '2025-03-22', drawdown: -2.94 },
+    { date: '2025-04-01', drawdown: 0 },
+  ],
+};
 
-interface BacktestVisualizationProps {
-  backtestResult: BacktestResult;
-  strategyName: string;
-}
-
-const BacktestVisualization: React.FC<BacktestVisualizationProps> = ({
-  backtestResult,
-  strategyName
-}) => {
-  const { metrics, equityData, monthlyReturns } = backtestResult;
+const BacktestVisualization = () => {
+  const [currentTab, setCurrentTab] = useState('overview');
   
+  // Format currency for display
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(value);
   };
   
+  // Format percentage for display
   const formatPercent = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 2
-    }).format(value / 100);
+    return `${value.toFixed(2)}%`;
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle>{strategyName} Backtest Results</CardTitle>
-            <CardDescription>Historical performance analysis</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Badge variant={metrics.netProfit > 0 ? "success" : "destructive"}>
-              {metrics.netProfit > 0 ? "Profitable" : "Unprofitable"}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Net Profit</div>
-              <div className={`text-lg font-bold ${metrics.netProfit > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {formatCurrency(metrics.netProfit)}
-              </div>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Win Rate</div>
-              <div className="text-lg font-bold">
-                {formatPercent(metrics.winRate)}
-              </div>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Profit Factor</div>
-              <div className="text-lg font-bold">
-                {metrics.profitFactor.toFixed(2)}
-              </div>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Sharpe Ratio</div>
-              <div className="text-lg font-bold">
-                {metrics.sharpeRatio.toFixed(2)}
-              </div>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Max Drawdown</div>
-              <div className="text-lg font-bold text-red-500">
-                {formatPercent(metrics.maxDrawdown)}
-              </div>
-            </div>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Total Trades</div>
-              <div className="text-lg font-bold">
-                {metrics.totalTrades} ({metrics.winningTrades}/{metrics.losingTrades})
-              </div>
-            </div>
-          </div>
-
-          <Tabs defaultValue="equity" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="equity">Equity Curve</TabsTrigger>
-              <TabsTrigger value="drawdown">Drawdown</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly Returns</TabsTrigger>
-            </TabsList>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Backtest Results</h2>
+        <Button variant="outline" size="sm">
+          <Download className="h-4 w-4 mr-2" />
+          Export Results
+        </Button>
+      </div>
+      
+      <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
+        <TabsList className="grid grid-cols-4 w-full">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="trades">Trades</TabsTrigger>
+          <TabsTrigger value="equity">Equity Curve</TabsTrigger>
+          <TabsTrigger value="metrics">Key Metrics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Performance Summary</CardTitle>
+                <CardDescription>Overall backtest performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Net Profit</p>
+                    <p className="text-xl font-bold text-green-500">{formatCurrency(backtestData.performance.netProfit)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Win Rate</p>
+                    <p className="text-xl font-bold">{(backtestData.performance.winRate * 100).toFixed(1)}%</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Profit Factor</p>
+                    <p className="text-xl font-bold">{backtestData.performance.profitFactor.toFixed(2)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Max Drawdown</p>
+                    <p className="text-xl font-bold text-red-500">{backtestData.performance.maxDrawdown.toFixed(2)}%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
-            <TabsContent value="equity" className="mt-0">
-              <div className="h-[300px]">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Monthly Returns</CardTitle>
+                <CardDescription>Return by month</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[180px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={equityData}>
+                  <BarChart data={backtestData.monthlyReturns}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                    <YAxis 
-                      yAxisId="left" 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `$${value.toLocaleString()}`}
-                    />
-                    <YAxis 
-                      yAxisId="right" 
-                      orientation="right" 
-                      tick={{ fontSize: 12 }}
-                      domain={['dataMin', 'dataMax']}
-                    />
-                    <Tooltip 
-                      formatter={(value, name) => {
-                        if (name === "Equity") return [`$${value.toLocaleString()}`, name];
-                        if (name === "Price") return [`$${value.toLocaleString()}`, name];
-                        return [value, name];
-                      }}
-                    />
-                    <Legend />
-                    <Area 
-                      yAxisId="left"
-                      type="monotone" 
-                      dataKey="equity" 
-                      name="Equity" 
-                      fill="#8884d8" 
-                      stroke="#8884d8"
-                      fillOpacity={0.3}
-                    />
-                    <Line 
-                      yAxisId="right"
-                      type="monotone" 
-                      dataKey="price" 
-                      name="Price" 
-                      stroke="#ffc658" 
-                      dot={false}
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="drawdown" className="mt-0">
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={equityData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                    <YAxis 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip 
-                      formatter={(value) => [`${value.toFixed(2)}%`, "Drawdown"]}
-                    />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="drawdown" 
-                      name="Drawdown" 
-                      fill="#ff5252" 
-                      stroke="#ff5252"
-                      fillOpacity={0.3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="monthly" className="mt-0">
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyReturns}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `${value}%`}
-                    />
-                    <Tooltip 
-                      formatter={(value) => [`${value.toFixed(2)}%`, "Return"]}
-                    />
-                    <Legend />
+                    <XAxis dataKey="month" />
+                    <YAxis tickFormatter={(value) => `${value}%`} />
+                    <Tooltip formatter={(value) => [`${typeof value === 'number' ? value.toFixed(2) : value}%`, 'Return']} />
                     <Bar 
                       dataKey="return" 
-                      name="Monthly Return" 
-                      fill={(data) => data.return >= 0 ? "#4caf50" : "#ff5252"}
+                      fill={(data) => parseFloat(data.return) >= 0 ? "#4caf50" : "#ff5252"}
                     />
                   </BarChart>
                 </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Equity Curve</CardTitle>
+              <CardDescription>Account equity over time</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={backtestData.equityCurve}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => [formatCurrency(Number(value)), 'Equity']} />
+                  <Line type="monotone" dataKey="equity" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="trades" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Trade Statistics</CardTitle>
+              <CardDescription>Summary of all trades</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Total Trades</p>
+                  <p className="text-xl font-bold">{backtestData.performance.totalTrades}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Winning Trades</p>
+                  <p className="text-xl font-bold text-green-500">{backtestData.performance.winningTrades}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Losing Trades</p>
+                  <p className="text-xl font-bold text-red-500">{backtestData.performance.losingTrades}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Win Rate</p>
+                  <p className="text-xl font-bold">{(backtestData.performance.winRate * 100).toFixed(1)}%</p>
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </CardContent>
-    </Card>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Trade List</CardTitle>
+              <CardDescription>Individual trade details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <div className="grid grid-cols-7 bg-muted p-3 text-sm font-medium">
+                  <div>Date</div>
+                  <div>Type</div>
+                  <div>Entry</div>
+                  <div>Exit</div>
+                  <div>P/L</div>
+                  <div>P/L %</div>
+                  <div></div>
+                </div>
+                <div className="divide-y">
+                  {backtestData.trades.map((trade) => (
+                    <div key={trade.id} className="grid grid-cols-7 p-3 text-sm">
+                      <div>{trade.date}</div>
+                      <div className={trade.type === 'LONG' ? 'text-green-500' : 'text-red-500'}>
+                        {trade.type}
+                      </div>
+                      <div>${trade.entry.toFixed(2)}</div>
+                      <div>${trade.exit.toFixed(2)}</div>
+                      <div className={trade.profit >= 0 ? 'text-green-500' : 'text-red-500'}>
+                        ${trade.profit.toFixed(2)}
+                      </div>
+                      <div className={trade.profitPercent >= 0 ? 'text-green-500' : 'text-red-500'}>
+                        {trade.profitPercent.toFixed(2)}%
+                      </div>
+                      <div className="text-right">
+                        <Button variant="ghost" size="sm">Details</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="equity" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Equity Growth</CardTitle>
+                <CardDescription>Account balance over time</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={backtestData.equityCurve}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [formatCurrency(Number(value)), 'Equity']} />
+                    <Line type="monotone" dataKey="equity" stroke="#3b82f6" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Drawdowns</CardTitle>
+                <CardDescription>Equity drawdowns over time</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={backtestData.drawdowns}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis tickFormatter={(value) => `${value}%`} />
+                    <Tooltip formatter={(value) => [`${typeof value === 'number' ? value.toFixed(2) : value}%`, 'Drawdown']} />
+                    <Line type="monotone" dataKey="drawdown" stroke="#ff5252" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="metrics" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Profitability</CardTitle>
+                <CardDescription>Return metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Net Profit</span>
+                    <span className="font-medium">{formatCurrency(backtestData.performance.netProfit)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Profit Factor</span>
+                    <span className="font-medium">{backtestData.performance.profitFactor.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Sharp Ratio</span>
+                    <span className="font-medium">{backtestData.performance.sharpRatio.toFixed(2)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Risk</CardTitle>
+                <CardDescription>Risk metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Max Drawdown</span>
+                    <span className="font-medium text-red-500">{backtestData.performance.maxDrawdown.toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Recovery Factor</span>
+                    <span className="font-medium">1.84</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Risk/Reward</span>
+                    <span className="font-medium">2.34</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Trade Quality</CardTitle>
+                <CardDescription>Trade statistics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Win Rate</span>
+                    <span className="font-medium">{(backtestData.performance.winRate * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Average Win</span>
+                    <span className="font-medium">$247.63</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Average Loss</span>
+                    <span className="font-medium">-$105.83</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
