@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 interface PerformanceStatsProps {
@@ -25,16 +26,56 @@ interface PerformanceStatsProps {
 
 const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) => {
   // Data validation
-  const isDataValid = data && 
-    typeof data.totalPnl === 'number' && 
-    typeof data.dailyPnl === 'number' && 
-    typeof data.winRate === 'number' && 
-    typeof data.totalTrades === 'number' && 
-    Array.isArray(data.pnlHistory);
+  const isDataValid = useMemo(() => {
+    if (!data) return false;
+    
+    const requiredFields = [
+      typeof data.totalPnl === 'number',
+      typeof data.dailyPnl === 'number',
+      typeof data.winRate === 'number',
+      typeof data.totalTrades === 'number',
+      Array.isArray(data.pnlHistory)
+    ];
+    
+    // Check if all required fields are available
+    const allFieldsAvailable = requiredFields.every(Boolean);
+    
+    // Additional validation for history data
+    const validHistory = data.pnlHistory?.every(item => 
+      item && 
+      typeof item.date === 'string' && 
+      typeof item.pnl === 'number' &&
+      !isNaN(item.pnl) && 
+      new Date(item.date).toString() !== 'Invalid Date'
+    );
+    
+    return allFieldsAvailable && validHistory;
+  }, [data]);
+
+  // Debug info
+  useEffect(() => {
+    if (!isDataValid && data) {
+      console.error('Invalid performance data:', data);
+      console.debug('Data validation checks:', {
+        hasTotalPnl: typeof data.totalPnl === 'number',
+        hasDailyPnl: typeof data.dailyPnl === 'number',
+        hasWinRate: typeof data.winRate === 'number',
+        hasTotalTrades: typeof data.totalTrades === 'number',
+        hasHistory: Array.isArray(data.pnlHistory),
+        historyValid: data.pnlHistory?.every(item => 
+          item && 
+          typeof item.date === 'string' && 
+          typeof item.pnl === 'number' &&
+          !isNaN(item.pnl) && 
+          new Date(item.date).toString() !== 'Invalid Date'
+        )
+      });
+    }
+  }, [data, isDataValid]);
 
   // Notify on significant P&L changes
   useEffect(() => {
-    if (data && Math.abs(data.dailyPnl) > 1000) {
+    if (isDataValid && Math.abs(data.dailyPnl) > 1000) {
       const isProfitable = data.dailyPnl > 0;
       toast(
         isProfitable ? "Significant profit detected" : "Significant loss detected", 
@@ -52,42 +93,53 @@ const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) =>
         timestamp: new Date().toISOString()
       });
     }
-  }, [data?.dailyPnl]);
+  }, [data?.dailyPnl, isDataValid]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      return (
-        <div className="bg-card p-3 border border-border rounded-md shadow-md">
-          <p className="text-sm font-semibold">{label}</p>
-          <p className={`text-sm ${payload[0].value >= 0 ? 'text-tradingGreen-500' : 'text-tradingRed-500'}`}>
-            ${payload[0].value.toLocaleString()}
-          </p>
-        </div>
-      );
+      try {
+        const date = new Date(label);
+        const formattedDate = date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+        
+        return (
+          <div className="bg-card p-3 border border-border rounded-md shadow-md">
+            <p className="text-sm font-semibold">{formattedDate}</p>
+            <p className={`text-sm ${payload[0].value >= 0 ? 'text-tradingGreen-500' : 'text-tradingRed-500'}`}>
+              ${payload[0].value.toLocaleString()}
+            </p>
+          </div>
+        );
+      } catch (error) {
+        console.error('Error rendering tooltip:', error);
+        return null;
+      }
     }
     return null;
   };
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="pb-2">
-              <div className="h-4 bg-muted rounded w-24"></div>
+              <Skeleton className="h-4 w-24" />
             </CardHeader>
             <CardContent>
-              <div className="h-6 bg-muted rounded w-20 mb-2"></div>
-              <div className="h-3 bg-muted rounded w-32"></div>
+              <Skeleton className="h-6 w-20 mb-2" />
+              <Skeleton className="h-3 w-32" />
             </CardContent>
           </Card>
         ))}
         <Card className="col-span-1 md:col-span-2 lg:col-span-4">
           <CardHeader>
-            <div className="h-5 bg-muted rounded w-32"></div>
+            <Skeleton className="h-5 w-32" />
           </CardHeader>
           <CardContent>
-            <div className="h-[200px] bg-muted/30 rounded"></div>
+            <Skeleton className="h-[200px] w-full" />
           </CardContent>
         </Card>
       </div>
@@ -107,6 +159,20 @@ const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) =>
 
   // Check if we have any performance history data
   const hasPnlHistory = data.pnlHistory && data.pnlHistory.length > 0;
+
+  // Ensure PnL history is sorted by date
+  const sortedPnlHistory = useMemo(() => {
+    if (!hasPnlHistory) return [];
+    
+    try {
+      return [...data.pnlHistory].sort((a, b) => 
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+    } catch (error) {
+      console.error('Error sorting PnL history:', error);
+      return data.pnlHistory;
+    }
+  }, [data.pnlHistory, hasPnlHistory]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -189,7 +255,7 @@ const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) =>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={data.pnlHistory}
+                  data={sortedPnlHistory}
                   margin={{
                     top: 5,
                     right: 30,
@@ -220,7 +286,7 @@ const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) =>
                     dataKey="pnl" 
                     radius={[4, 4, 0, 0]}
                   >
-                    {data.pnlHistory.map((entry, index) => (
+                    {sortedPnlHistory.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
                         fill={entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)'}
