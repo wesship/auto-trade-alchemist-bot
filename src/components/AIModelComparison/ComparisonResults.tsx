@@ -4,8 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { availableAIModels } from "@/services/trading/aiStrategyService";
-import { CheckCircle2, XCircle, Code } from "lucide-react";
-import { ModelComparisonData } from "@/utils/monitoring/types";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { AIStrategyGenerationResult } from "@/services/trading/aiStrategyService";
 
 interface ComparisonResultsProps {
