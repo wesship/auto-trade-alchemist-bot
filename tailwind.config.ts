@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,47 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Trading agent custom colors
+				tradingBlue: {
+					100: '#E6F0FF',
+					200: '#B3D1FF',
+					300: '#80B3FF',
+					400: '#4D94FF',
+					500: '#1A75FF',
+					600: '#0059CC',
+					700: '#004299',
+					800: '#002C66',
+					900: '#001733',
+				},
+				tradingGreen: {
+					100: '#E6FFF2',
+					200: '#B3FFD9',
+					300: '#80FFBF',
+					400: '#4DFFA6',
+					500: '#1AFF8C',
+					600: '#00CC70',
+					700: '#009954',
+					800: '#006638',
+					900: '#00331C',
+				},
+				tradingRed: {
+					100: '#FFE6E6',
+					200: '#FFB3B3',
+					300: '#FF8080',
+					400: '#FF4D4D',
+					500: '#FF1A1A',
+					600: '#CC0000',
+					700: '#990000',
+					800: '#660000',
+					900: '#330000',
+				},
+				terminal: {
+					background: '#0E1117',
+					foreground: '#E4ECF6',
+					accent: '#00FF9D',
+					muted: '#2A3241',
+					border: '#1A2233',
 				}
 			},
 			borderRadius: {
@@ -84,11 +126,16 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.6' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			}
 		}
 	},
