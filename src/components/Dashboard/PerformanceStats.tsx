@@ -1,12 +1,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpIcon, ArrowDownIcon, TrendingUp, DollarSign, BarChart3, Activity } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, TrendingUp, DollarSign, BarChart3, Activity, AlertCircle } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from "recharts";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 interface PerformanceStatsProps {
   data: {
@@ -17,9 +20,40 @@ interface PerformanceStatsProps {
     totalTrades: number;
     pnlHistory: { date: string; pnl: number }[];
   };
+  isLoading?: boolean;
 }
 
-const PerformanceStats = ({ data }: PerformanceStatsProps) => {
+const PerformanceStats = ({ data, isLoading = false }: PerformanceStatsProps) => {
+  // Data validation
+  const isDataValid = data && 
+    typeof data.totalPnl === 'number' && 
+    typeof data.dailyPnl === 'number' && 
+    typeof data.winRate === 'number' && 
+    typeof data.totalTrades === 'number' && 
+    Array.isArray(data.pnlHistory);
+
+  // Notify on significant P&L changes
+  useEffect(() => {
+    if (data && Math.abs(data.dailyPnl) > 1000) {
+      const isProfitable = data.dailyPnl > 0;
+      toast(
+        isProfitable ? "Significant profit detected" : "Significant loss detected", 
+        { 
+          description: `Daily P&L change of $${Math.abs(data.dailyPnl).toLocaleString()}`, 
+          duration: 5000,
+          icon: isProfitable ? "📈" : "📉",
+        }
+      );
+      
+      // Log details for debugging
+      console.log("Significant P&L change:", {
+        dailyPnl: data.dailyPnl,
+        totalPnl: data.totalPnl,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [data?.dailyPnl]);
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -33,6 +67,46 @@ const PerformanceStats = ({ data }: PerformanceStatsProps) => {
     }
     return null;
   };
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="pb-2">
+              <div className="h-4 bg-muted rounded w-24"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-6 bg-muted rounded w-20 mb-2"></div>
+              <div className="h-3 bg-muted rounded w-32"></div>
+            </CardContent>
+          </Card>
+        ))}
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+          <CardHeader>
+            <div className="h-5 bg-muted rounded w-32"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[200px] bg-muted/30 rounded"></div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isDataValid) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Invalid performance data detected. Please refresh or contact support if this issue persists.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Check if we have any performance history data
+  const hasPnlHistory = data.pnlHistory && data.pnlHistory.length > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -106,49 +180,71 @@ const PerformanceStats = ({ data }: PerformanceStatsProps) => {
         </CardContent>
       </Card>
       
-      <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-        <CardHeader>
-          <CardTitle>P&L History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data.pnlHistory}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis 
-                  dataKey="date"
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return `${date.getMonth() + 1}/${date.getDate()}`;
+      {hasPnlHistory ? (
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+          <CardHeader>
+            <CardTitle>P&L History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data.pnlHistory}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
                   }}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis
-                  tickFormatter={(value) => `$${value}`}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="pnl" 
-                  radius={[4, 4, 0, 0]}
                 >
-                  {data.pnlHistory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis 
+                    dataKey="date"
+                    tickFormatter={(value) => {
+                      try {
+                        const date = new Date(value);
+                        return `${date.getMonth() + 1}/${date.getDate()}`;
+                      } catch (error) {
+                        console.error("Error formatting date:", error);
+                        return value;
+                      }
+                    }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis
+                    tickFormatter={(value) => `$${value}`}
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar 
+                    dataKey="pnl" 
+                    radius={[4, 4, 0, 0]}
+                  >
+                    {data.pnlHistory.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+          <CardHeader>
+            <CardTitle>P&L History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground">
+              <AlertCircle className="h-8 w-8 mb-2" />
+              <p>No performance history data available</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
