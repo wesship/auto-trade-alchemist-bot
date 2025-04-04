@@ -319,4 +319,105 @@ const Logs = () => {
   );
 };
 
+const handleRefresh = () => {
+  if (logType === 'trade') {
+    refetchTradeLogs();
+  } else if (logType === 'security') {
+    refetchSecurityEvents();
+  } else if (logType === 'system') {
+    refetchSystemLogs();
+  }
+};
+
+const renderLogIcon = (log: any) => {
+  if (logType === 'trade') {
+    return log.action === 'BUY' 
+      ? <ShoppingCart className="h-5 w-5 text-primary" /> 
+      : <ShoppingCart className="h-5 w-5 text-destructive" />;
+  } else if (logType === 'security') {
+    return log.severity === 'high' 
+      ? <Shield className="h-5 w-5 text-destructive" /> 
+      : <Shield className="h-5 w-5 text-primary" />;
+  } else if (logType === 'system') {
+    if (log.level === 'ERROR') {
+      return <AlertTriangle className="h-5 w-5 text-destructive" />;
+    } else if (log.level === 'WARN') {
+      return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+    } else {
+      return <FileText className="h-5 w-5 text-primary" />;
+    }
+  }
+  
+  return <Clock className="h-5 w-5 text-muted-foreground" />;
+};
+
+const renderLogContent = (log: any) => {
+  if (logType === 'trade') {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <span className="font-medium">{log.symbol}</span>
+          {renderLogBadge(log)}
+          <span className="ml-auto text-sm text-muted-foreground">
+            {new Date(log.timestamp).toLocaleString()}
+          </span>
+        </div>
+        <div className="mt-1 text-sm">
+          Quantity: {log.quantity} • Price: ${log.price?.toFixed(2) || 'N/A'} • 
+          Value: ${(log.quantity * log.price)?.toFixed(2) || 'N/A'}
+        </div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          Model: {log.modelId} • Trade ID: {log.id}
+        </div>
+      </div>
+    );
+  } else if (logType === 'security') {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <span className="font-medium">{log.type}</span>
+          {renderLogBadge(log)}
+          <span className="ml-auto text-sm text-muted-foreground">
+            {new Date(log.timestamp).toLocaleString()}
+          </span>
+        </div>
+        <div className="mt-1 text-sm">
+          {log.details}
+        </div>
+        {log.ipAddress && (
+          <div className="mt-1 text-xs text-muted-foreground">
+            IP: {log.ipAddress}
+          </div>
+        )}
+      </div>
+    );
+  } else if (logType === 'system') {
+    return (
+      <div className="flex flex-col">
+        <div className="flex items-center">
+          <span className="font-medium">{log.message}</span>
+          {renderLogBadge(log)}
+          <span className="ml-auto text-sm text-muted-foreground">
+            {new Date(log.timestamp).toLocaleString()}
+          </span>
+        </div>
+        {log.data && (
+          <div className="mt-1 text-sm">
+            {typeof log.data === 'object' 
+              ? JSON.stringify(log.data) 
+              : log.data.toString()}
+          </div>
+        )}
+        {log.source && (
+          <div className="mt-1 text-xs text-muted-foreground">
+            Source: {log.source}
+          </div>
+        )}
+      </div>
+    );
+  }
+  
+  return null;
+};
+
 export default Logs;

@@ -13,11 +13,11 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import Header from './Header';
-import useMobile from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile'; // Using named import
 
 const Sidebar = () => {
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const Sidebar = () => {
 };
 
 const MainLayout = () => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -104,10 +104,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header
-        sidebarOpen={sidebarOpen}
-        onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
-      />
+      <Header />
       <Sidebar />
       <div
         className={cn(

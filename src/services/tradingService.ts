@@ -8,7 +8,8 @@ import {
   CircuitBreakerConfig,
   TradeLog,
   ModelMetrics,
-  ModelHealth
+  ModelHealth,
+  ModelDriftStatus
 } from '../types/trading';
 import { marketAssets, aiTradingModels, trainModel as mockTrainModel, getTradeSignals as mockGetTradeSignals } from './mockData';
 import { toast } from "sonner";
@@ -294,7 +295,7 @@ const generateModelHealth = (modelId: string): ModelHealth => {
   // In a real application, this would be based on actual metrics
   return {
     accuracy: 0.75 + (Math.random() * 0.2 - 0.1), // 65-85% accuracy
-    drift: Math.random() > 0.8 ? 'WARNING' : 'NORMAL',
+    drift: Math.random() > 0.8 ? 'WARNING' : 'NORMAL' as ModelDriftStatus,
     lastEvaluationDate: new Date().toISOString(),
     trainingStatus: Math.random() > 0.7 ? 'NEEDS_TRAINING' : 'READY',
     errorRate: Math.random() * 0.15, // 0-15% error rate
@@ -760,10 +761,3 @@ export const getSystemStatus = async (): Promise<any> => {
 featureFlags.enable('CIRCUIT_BREAKER');
 featureFlags.enable('ADVANCED_LOGGING');
 featureFlags.enable('TRADE_NOTIFICATIONS');
-
-// Export additional functions
-export {
-  configureModelRetraining,
-  scheduleModelRetraining,
-  getSystemStatus
-};
