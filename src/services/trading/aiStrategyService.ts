@@ -1,3 +1,4 @@
+
 import logger from '@/utils/logger';
 import { withRetry } from './utils';
 import modelMonitoring from '@/utils/modelMonitoring';
@@ -69,7 +70,7 @@ export const strategyPrompts = {
       id: 'hard-multi-timeframe',
       name: 'Multi-Timeframe Strategy',
       description: 'Strategy analyzing multiple timeframes using Stochastic RSI and volume profile',
-      prompt: 'Create a Pine Script strategy that uses Stochastic RSI on two timeframes (current and higher) plus volume profile. Go long when Stochastic RSI on both timeframes show K line above D line AND price is near a high volume node from the volume profile. Exit when either timeframe\'s Stochastic RSI K line crosses below its D line.'
+      prompt: "Create a Pine Script strategy that uses Stochastic RSI on two timeframes (current and higher) plus volume profile. Go long when Stochastic RSI on both timeframes show K line above D line AND price is near a high volume node from the volume profile. Exit when either timeframe's Stochastic RSI K line crosses below its D line."
     }
   ]
 };

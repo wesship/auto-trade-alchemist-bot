@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { 
   strategyPrompts,
   availableAIModels,
-  compareAIModels
+  compareAIModels,
+  AIStrategyGenerationResult
 } from "@/services/trading/aiStrategyService";
 import { getAggregatedModelPerformance, getModelComparisons } from "@/utils/monitoring";
 import ComparisonForm from "@/components/AIModelComparison/ComparisonForm";

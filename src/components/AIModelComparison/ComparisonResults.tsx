@@ -6,9 +6,10 @@ import { Progress } from "@/components/ui/progress";
 import { availableAIModels } from "@/services/trading/aiStrategyService";
 import { CheckCircle2, XCircle, Code } from "lucide-react";
 import { ModelComparisonData } from "@/utils/monitoring/types";
+import { AIStrategyGenerationResult } from "@/services/trading/aiStrategyService";
 
 interface ComparisonResultsProps {
-  comparisonResults: ModelComparisonData[];
+  comparisonResults: AIStrategyGenerationResult[];
   viewCode: string | null;
   setViewCode: (modelId: string | null) => void;
 }

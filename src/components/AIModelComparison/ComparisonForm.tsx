@@ -6,14 +6,14 @@ import { BarChart3 } from "lucide-react";
 import { strategyPrompts } from "@/services/trading/aiStrategyService";
 import PromptSelector from "./PromptSelector";
 import ComparisonResults from "./ComparisonResults";
-import { ModelComparisonData } from "@/utils/monitoring/types";
+import { AIStrategyGenerationResult } from "@/services/trading/aiStrategyService";
 
 interface ComparisonFormProps {
   selectedPromptId: string;
   setSelectedPromptId: (id: string) => void;
   handleRunComparison: () => void;
   isComparing: boolean;
-  comparisonResults: ModelComparisonData[] | undefined;
+  comparisonResults: AIStrategyGenerationResult[] | undefined;
   viewCode: string | null;
   setViewCode: (modelId: string | null) => void;
 }
