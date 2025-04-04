@@ -21,9 +21,8 @@ import {
   TrendingUp,
   Flag,
   ChartBar,
-  FileExport,
+  ArrowUp,
   BookmarkCheck,
-  ListTodo,
   Code,
 } from "lucide-react";
 

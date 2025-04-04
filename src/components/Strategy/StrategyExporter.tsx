@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { FileExport, Code } from "lucide-react";
+import { ArrowUp, Code } from "lucide-react";
 import { toast } from "sonner";
 
 interface StrategyExporterProps {
@@ -86,7 +86,7 @@ const StrategyExporter: React.FC<StrategyExporterProps> = ({
       <DialogTrigger asChild>
         {children || (
           <Button variant="outline">
-            <FileExport className="h-4 w-4 mr-2" />
+            <ArrowUp className="h-4 w-4 mr-2" />
             Export Strategy
           </Button>
         )}
@@ -163,7 +163,7 @@ const StrategyExporter: React.FC<StrategyExporterProps> = ({
               </>
             ) : (
               <>
-                <FileExport className="h-4 w-4 mr-2" />
+                <ArrowUp className="h-4 w-4 mr-2" />
                 Export
               </>
             )}
