@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StrategyExporter } from "@/components/Strategy/StrategyExporter";
 
 // Mock data for saved strategies
 const savedStrategies = [
@@ -307,9 +308,9 @@ const StrategyLibrary = () => {
                   <div className="text-xs font-mono bg-muted/50 p-3 rounded-md overflow-hidden h-36 relative">
                     <pre className="text-xs leading-relaxed overflow-hidden">
                       {strategy.code.slice(0, 350)}
-                      {strategy.code.length > 350 && '...'}
+                      {strategy.code.length > 350 && "..."}
                     </pre>
-                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent"></div>
                   </div>
                   
                   <div className="flex flex-wrap gap-1 mt-3">
