@@ -12,6 +12,9 @@ import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import Forecast from "./pages/Forecast";
 import AIModelComparison from "./pages/AIModelComparison";
+import StrategyLibrary from "./pages/StrategyLibrary";
+import ModelAccuracy from "./pages/ModelAccuracy";
+import ModelBenchmark from "./pages/ModelBenchmark";
 import "./App.css";
 
 // Create a client
@@ -31,6 +34,9 @@ function App() {
             <Route path="/forecast" element={<Forecast />} />
             <Route path="/feature-flags" element={<FeatureFlags />} />
             <Route path="/ai-model-comparison" element={<AIModelComparison />} />
+            <Route path="/strategy-library" element={<StrategyLibrary />} />
+            <Route path="/model-accuracy" element={<ModelAccuracy />} />
+            <Route path="/model-benchmark" element={<ModelBenchmark />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

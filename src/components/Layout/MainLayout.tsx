@@ -20,12 +20,19 @@ import {
   Settings,
   TrendingUp,
   Flag,
+  ChartBar,
+  Export,
+  BookmarkCheck,
+  ListTodo,
+  Code,
 } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { name: "Models", href: "/models", icon: Brain },
   { name: "Forecast", href: "/forecast", icon: TrendingUp },
+  { name: "AI Comparison", href: "/ai-model-comparison", icon: ChartBar },
+  { name: "Strategy Library", href: "/strategy-library", icon: BookmarkCheck },
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Feature Flags", href: "/feature-flags", icon: Flag },
 ];
