@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { ArrowUpIcon, ArrowDownIcon, TrendingUp, DollarSign, BarChart3, Activity } from "lucide-react";
 
 interface PerformanceStatsProps {
@@ -134,8 +134,11 @@ const PerformanceStats = ({ data }: PerformanceStatsProps) => {
                 <Bar 
                   dataKey="pnl" 
                   radius={[4, 4, 0, 0]}
-                  fill={(entry) => (entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)')}
-                />
+                >
+                  {data.pnlHistory.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)'} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
