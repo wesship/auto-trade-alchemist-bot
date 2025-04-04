@@ -11,6 +11,7 @@ import FeatureFlags from "./pages/FeatureFlags";
 import NotFound from "./pages/NotFound";
 import Index from "./pages/Index";
 import Forecast from "./pages/Forecast";
+import AIModelComparison from "./pages/AIModelComparison";
 import "./App.css";
 
 // Create a client
@@ -29,6 +30,7 @@ function App() {
             <Route path="/logs" element={<Logs />} />
             <Route path="/forecast" element={<Forecast />} />
             <Route path="/feature-flags" element={<FeatureFlags />} />
+            <Route path="/ai-model-comparison" element={<AIModelComparison />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

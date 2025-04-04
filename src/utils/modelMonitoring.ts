@@ -15,6 +15,17 @@ export interface ModelMetric {
   profitLoss: number;
   tradeCount: number;
   successRate: number;
+  strategyType?: string;
+  promptComplexity?: 'easy' | 'medium' | 'hard';
+  codeQualityScore?: number;
+  syntaxErrorCount?: number;
+  adherenceToInstructionsScore?: number;
+  backtestPerformance?: {
+    sharpeRatio?: number;
+    maxDrawdown?: number;
+    winRate?: number;
+    profitFactor?: number;
+  };
 }
 
 export interface ModelPerformanceAlert {
@@ -29,6 +40,7 @@ export interface ModelPerformanceAlert {
 // Store metrics in localStorage with prefixes
 const METRICS_KEY_PREFIX = 'model_metrics_';
 const ALERTS_KEY = 'model_performance_alerts';
+const MODEL_COMPARISON_KEY = 'model_comparison_results';
 
 /**
  * Record a model performance metric
@@ -237,10 +249,174 @@ export const calculateModelPerformance = (
   };
 };
 
+/**
+ * Record a model comparison result for AI code quality analysis
+ * Used for comparing different AI models' generated trading strategies
+ */
+export const recordModelComparison = (
+  comparisonData: {
+    modelId: string;
+    promptComplexity: 'easy' | 'medium' | 'hard';
+    strategyType: string;
+    codeQualityScore: number;
+    syntaxErrorCount: number;
+    adherenceToInstructionsScore: number;
+    backtestPerformance?: {
+      sharpeRatio?: number;
+      maxDrawdown?: number;
+      winRate?: number;
+      profitFactor?: number;
+    };
+  }[]
+): void => {
+  try {
+    const timestamp = new Date().toISOString();
+    
+    // Add timestamp to each record
+    const records = comparisonData.map(data => ({
+      ...data,
+      timestamp
+    }));
+    
+    // Retrieve existing comparisons
+    const storedComparisons = localStorage.getItem(MODEL_COMPARISON_KEY);
+    const comparisons = storedComparisons ? JSON.parse(storedComparisons) : [];
+    
+    // Add new comparison records
+    comparisons.push(...records);
+    
+    // Keep only last 20 comparison sets
+    const uniqueTimestamps = [...new Set(comparisons.map(c => c.timestamp))];
+    if (uniqueTimestamps.length > 20) {
+      const timestampsToKeep = uniqueTimestamps.slice(-20);
+      const filteredComparisons = comparisons.filter(c => 
+        timestampsToKeep.includes(c.timestamp)
+      );
+      
+      localStorage.setItem(MODEL_COMPARISON_KEY, JSON.stringify(filteredComparisons));
+    } else {
+      localStorage.setItem(MODEL_COMPARISON_KEY, JSON.stringify(comparisons));
+    }
+    
+    console.info(`Recorded comparison data for ${records.length} AI models`);
+    
+  } catch (error) {
+    console.error('Failed to record model comparison:', error);
+  }
+};
+
+/**
+ * Get all model comparison results
+ */
+export const getModelComparisons = (): {
+  modelId: string;
+  promptComplexity: 'easy' | 'medium' | 'hard';
+  strategyType: string;
+  codeQualityScore: number;
+  syntaxErrorCount: number;
+  adherenceToInstructionsScore: number;
+  timestamp: string;
+  backtestPerformance?: {
+    sharpeRatio?: number;
+    maxDrawdown?: number;
+    winRate?: number;
+    profitFactor?: number;
+  };
+}[] => {
+  try {
+    const storedComparisons = localStorage.getItem(MODEL_COMPARISON_KEY);
+    return storedComparisons ? JSON.parse(storedComparisons) : [];
+  } catch (error) {
+    console.error('Failed to retrieve model comparisons:', error);
+    return [];
+  }
+};
+
+/**
+ * Get aggregated performance metrics by model ID
+ */
+export const getAggregatedModelPerformance = (modelIds: string[]): {
+  modelId: string;
+  avgCodeQualityScore: number;
+  avgAdherenceScore: number;
+  totalSyntaxErrors: number;
+  performanceByComplexity: {
+    easy: { count: number; avgScore: number };
+    medium: { count: number; avgScore: number };
+    hard: { count: number; avgScore: number };
+  };
+}[] => {
+  try {
+    const comparisons = getModelComparisons();
+    
+    return modelIds.map(modelId => {
+      const modelComparisons = comparisons.filter(c => c.modelId === modelId);
+      
+      if (modelComparisons.length === 0) {
+        return {
+          modelId,
+          avgCodeQualityScore: 0,
+          avgAdherenceScore: 0,
+          totalSyntaxErrors: 0,
+          performanceByComplexity: {
+            easy: { count: 0, avgScore: 0 },
+            medium: { count: 0, avgScore: 0 },
+            hard: { count: 0, avgScore: 0 }
+          }
+        };
+      }
+      
+      // Calculate averages and totals
+      const avgCodeQualityScore = modelComparisons.reduce((sum, c) => sum + c.codeQualityScore, 0) / modelComparisons.length;
+      const avgAdherenceScore = modelComparisons.reduce((sum, c) => sum + c.adherenceToInstructionsScore, 0) / modelComparisons.length;
+      const totalSyntaxErrors = modelComparisons.reduce((sum, c) => sum + c.syntaxErrorCount, 0);
+      
+      // Group by complexity
+      const easyPrompts = modelComparisons.filter(c => c.promptComplexity === 'easy');
+      const mediumPrompts = modelComparisons.filter(c => c.promptComplexity === 'medium');
+      const hardPrompts = modelComparisons.filter(c => c.promptComplexity === 'hard');
+      
+      return {
+        modelId,
+        avgCodeQualityScore,
+        avgAdherenceScore,
+        totalSyntaxErrors,
+        performanceByComplexity: {
+          easy: {
+            count: easyPrompts.length,
+            avgScore: easyPrompts.length > 0 
+              ? easyPrompts.reduce((sum, c) => sum + c.codeQualityScore, 0) / easyPrompts.length
+              : 0
+          },
+          medium: {
+            count: mediumPrompts.length,
+            avgScore: mediumPrompts.length > 0
+              ? mediumPrompts.reduce((sum, c) => sum + c.codeQualityScore, 0) / mediumPrompts.length
+              : 0
+          },
+          hard: {
+            count: hardPrompts.length,
+            avgScore: hardPrompts.length > 0
+              ? hardPrompts.reduce((sum, c) => sum + c.codeQualityScore, 0) / hardPrompts.length
+              : 0
+          }
+        }
+      };
+    });
+    
+  } catch (error) {
+    console.error('Failed to calculate aggregated model performance:', error);
+    return [];
+  }
+};
+
 export default {
   recordModelMetric,
   getModelMetrics,
   getPerformanceAlerts,
   clearPerformanceAlerts,
-  calculateModelPerformance
+  calculateModelPerformance,
+  recordModelComparison,
+  getModelComparisons,
+  getAggregatedModelPerformance
 };
