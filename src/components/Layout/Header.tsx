@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Header = () => {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -21,7 +22,7 @@ const Header = () => {
     <header className="border-b sticky top-0 z-40 bg-background">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-2 md:gap-4">
-          {isMobile && (
+          {isMobile ? (
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="md:hidden">
@@ -68,6 +69,8 @@ const Header = () => {
                 </nav>
               </SheetContent>
             </Sheet>
+          ) : (
+            <SidebarTrigger className="mr-2" />
           )}
 
           <NavLink to="/" className="flex items-center gap-2">
