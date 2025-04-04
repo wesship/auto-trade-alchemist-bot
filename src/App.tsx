@@ -8,6 +8,8 @@ import MainLayout from "./components/Layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Models from "./pages/Models";
 import ModelDetail from "./components/Models/ModelDetail";
+import Logs from "./pages/Logs";
+import FeatureFlags from "./pages/FeatureFlags";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/models" element={<Models />} />
             <Route path="/models/:modelId" element={<ModelDetail />} />
+            <Route path="/logs" element={<Logs />} />
+            <Route path="/feature-flags" element={<FeatureFlags />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
