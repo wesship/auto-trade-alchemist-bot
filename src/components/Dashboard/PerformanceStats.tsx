@@ -133,10 +133,8 @@ const PerformanceStats = ({ data }: PerformanceStatsProps) => {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
                   dataKey="pnl" 
-                  fill="hsl(var(--primary))" 
                   radius={[4, 4, 0, 0]}
-                  // Conditional color formatting based on value
-                  fill={(entry) => entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)'}
+                  fill={(entry) => (entry.pnl >= 0 ? 'hsl(150, 100%, 45%)' : 'hsl(0, 100%, 45%)')}
                 />
               </BarChart>
             </ResponsiveContainer>
