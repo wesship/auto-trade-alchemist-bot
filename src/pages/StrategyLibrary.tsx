@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -310,7 +309,7 @@ const StrategyLibrary = () => {
                       {strategy.code.slice(0, 350)}
                       {strategy.code.length > 350 && '...'}
                     </pre>
-                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent"/>
+                    <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent" />
                   </div>
                   
                   <div className="flex flex-wrap gap-1 mt-3">
