@@ -1,7 +1,16 @@
 
 // Export all AI strategy related functionality
 export * from './models';
-export * from './prompts';
+// Explicitly re-export from prompts to avoid naming conflicts with types.ts
+export { 
+  strategyPrompts,
+  pineScriptPrompts,
+  promptTags,
+  getPromptVersionHistory,
+  addPromptVersion,
+  getPromptVersion,
+  comparePromptVersions
+} from './prompts';
 export * from './generation';
 export * from './types';
 export * from './evaluation';
