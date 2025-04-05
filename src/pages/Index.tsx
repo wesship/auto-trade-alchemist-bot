@@ -15,13 +15,19 @@ const sampleData = [
   { name: 'Fri', value: 1700 },
 ];
 
+const backgroundStyle = {
+  backgroundImage: "url('/images/trading-floor.jpg')",
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+};
+
 const Index = () => {
   const { theme } = useTheme();
   
   return (
     <div className={`min-h-screen font-mono ${theme === 'dark' ? 'bg-background' : 'bg-white'}`}>
       {/* Hero Section */}
-      <section className="relative bg-[url('/images/trading-floor.jpg')] bg-cover bg-center min-h-[90vh] flex items-center justify-center">
+      <section className="relative min-h-[90vh] flex items-center justify-center" style={backgroundStyle}>
         <div className="absolute inset-0 bg-black/60"></div>
         <div className="glass-morphism p-10 rounded-2xl text-center relative z-10 mx-4 max-w-2xl">
           <div className="flex justify-center mb-6">
