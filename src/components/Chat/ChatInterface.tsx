@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +17,7 @@ const ChatInterface = () => {
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [recordingPulse, setRecordingPulse] = useState(false);
   
   const { speak, cancel, speaking } = useSpeechSynthesis();
   
@@ -34,6 +36,12 @@ const ChatInterface = () => {
 
   useEffect(() => {
     setIsListening(listening);
+    // Create pulsing effect when recording
+    if (listening) {
+      setRecordingPulse(true);
+    } else {
+      setTimeout(() => setRecordingPulse(false), 300);
+    }
   }, [listening]);
 
   useEffect(() => {
@@ -74,9 +82,11 @@ const ChatInterface = () => {
   const toggleListening = () => {
     if (listening) {
       SpeechRecognition.stopListening();
+      toast.info("Voice recording stopped");
     } else {
       resetTranscript();
       SpeechRecognition.startListening({ continuous: true });
+      toast.success("Listening to your voice...");
     }
   };
 
@@ -85,6 +95,7 @@ const ChatInterface = () => {
     if (speaking) {
       cancel();
     }
+    toast.info(voiceEnabled ? "Voice responses turned off" : "Voice responses enabled");
   };
 
   useEffect(() => {
@@ -104,17 +115,25 @@ const ChatInterface = () => {
             size="icon"
             onClick={toggleVoice}
             title={voiceEnabled ? "Mute voice" : "Enable voice"}
-            className="text-muted-foreground"
+            className={cn(
+              "text-muted-foreground transition-colors",
+              voiceEnabled && "text-primary hover:text-primary/80"
+            )}
           >
             {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </Button>
           {browserSupportsSpeechRecognition && (
             <Button
-              variant="ghost"
+              variant={recordingPulse ? "default" : "ghost"}
               size="icon"
               onClick={toggleListening}
               title={isListening ? "Stop listening" : "Start listening"}
-              className={isListening ? "text-primary" : "text-muted-foreground"}
+              className={cn(
+                "transition-colors",
+                isListening 
+                  ? "bg-primary text-primary-foreground animate-pulse" 
+                  : "text-muted-foreground hover:text-primary"
+              )}
             >
               {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
             </Button>
@@ -141,6 +160,16 @@ const ChatInterface = () => {
               <p className="text-muted-foreground max-w-md mt-2">
                 Ask me anything about trading, market analysis, or how to use AI for your investment strategies.
               </p>
+              {browserSupportsSpeechRecognition && (
+                <Button 
+                  onClick={toggleListening} 
+                  variant="outline"
+                  className="mt-4 flex items-center gap-2"
+                >
+                  <Mic className="w-4 h-4" />
+                  Try using voice commands
+                </Button>
+              )}
             </div>
           ) : (
             messages.map((msg, index) => (
@@ -209,10 +238,13 @@ const ChatInterface = () => {
 
       <form onSubmit={handleSendMessage} className="flex gap-2">
         <Textarea
-          placeholder="Ask about trading strategies, market analysis, or AI predictions..."
+          placeholder={isListening ? "Speak now or type your message..." : "Ask about trading strategies, market analysis, or AI predictions..."}
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
-          className="resize-none"
+          className={cn(
+            "resize-none",
+            isListening && "border-primary"
+          )}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -220,7 +252,15 @@ const ChatInterface = () => {
             }
           }}
         />
-        <Button type="submit" size="icon" disabled={isLoading || !userInput.trim()}>
+        <Button 
+          type="submit" 
+          size="icon" 
+          disabled={isLoading || !userInput.trim()}
+          className={cn(
+            "transition-all",
+            userInput.trim() && !isLoading ? "bg-primary" : "bg-muted"
+          )}
+        >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
