@@ -1,5 +1,5 @@
 
-import { validateTradeExecution } from '@/utils/dataValidator';
+import { validateTradeExecution } from '@/utils/validation';
 import securityUtils from '@/utils/securityUtils';
 import logger from '@/utils/logger';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';
