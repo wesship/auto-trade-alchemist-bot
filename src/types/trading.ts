@@ -1,6 +1,6 @@
 
 // Re-export the trading types from the existing file
-export { 
+export type { 
   Asset, 
   TradeSignal, 
   TradeExecution, 
