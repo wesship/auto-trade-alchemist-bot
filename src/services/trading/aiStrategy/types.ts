@@ -74,3 +74,27 @@ export interface StrategyGenerationParams {
   maxTokens?: number;
   temperature?: number;
 }
+
+/**
+ * Strategy prompt interface
+ */
+export interface StrategyPrompt {
+  id: string;
+  name: string;
+  description: string;
+  prompt: string;
+  tags?: string[];
+  complexity?: 'easy' | 'medium' | 'hard';
+  lastModified?: string;
+  author?: string;
+  version?: string;
+}
+
+/**
+ * Strategy prompts organized by complexity
+ */
+export interface StrategyPrompts {
+  easy: StrategyPrompt[];
+  medium: StrategyPrompt[];
+  hard: StrategyPrompt[];
+}

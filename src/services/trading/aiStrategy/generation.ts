@@ -21,7 +21,9 @@ export const generateStrategy = async (
     let complexity: 'easy' | 'medium' | 'hard' = 'medium';
     
     for (const [level, prompts] of Object.entries(strategyPrompts)) {
-      const prompt = prompts.find(p => p.id === promptId);
+      // Ensure prompts is treated as an array with find method
+      const promptsArray = prompts as any[];
+      const prompt = promptsArray.find(p => p.id === promptId);
       if (prompt) {
         promptDetails = prompt;
         complexity = level as 'easy' | 'medium' | 'hard';
@@ -210,11 +212,12 @@ export const compareAIModels = async (
     });
     
     // Calculate performance scores and find the best models
-    const scores = evaluations.map(eval => ({
-      modelId: eval.modelId,
-      score: calculatePerformanceScore(eval),
-      codeQuality: eval.codeQuality,
-      backtestScore: eval.backtestPerformance ? eval.backtestPerformance.sharpeRatio * eval.backtestPerformance.profitFactor : 0
+    // Fix: renamed 'eval' to 'evaluation' to avoid using the reserved keyword
+    const scores = evaluations.map(evaluation => ({
+      modelId: evaluation.modelId,
+      score: calculatePerformanceScore(evaluation),
+      codeQuality: evaluation.codeQuality,
+      backtestScore: evaluation.backtestPerformance ? evaluation.backtestPerformance.sharpeRatio * evaluation.backtestPerformance.profitFactor : 0
     }));
     
     // Find best models for different criteria
