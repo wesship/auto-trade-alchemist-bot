@@ -1,10 +1,8 @@
 
 import logger from '@/utils/logger';
-import { withRetry } from '../utils';
-import { availableAIModels } from './models';
-import { strategyPrompts } from './prompts';
-import { AIStrategyGenerationResult } from './types';
-import { ModelEvaluationMetrics, recordModelEvaluation, recordModelComparison, calculatePerformanceScore } from './evaluation';
+import { withRetry } from '../../utils';
+import { AIStrategyGenerationResult } from '../types';
+import { ModelEvaluationMetrics, recordModelEvaluation } from '../evaluation';
 
 /**
  * Mock function to generate a Pine Script trading strategy using a specified AI model
@@ -19,6 +17,9 @@ export const generateStrategy = async (
     // Find the prompt details
     let promptDetails;
     let complexity: 'easy' | 'medium' | 'hard' = 'medium';
+    
+    // Import here to avoid circular dependencies
+    const { strategyPrompts } = await import('../prompts');
     
     for (const [level, prompts] of Object.entries(strategyPrompts)) {
       // Ensure prompts is treated as an array with find method
@@ -79,52 +80,7 @@ export const generateStrategy = async (
         const generationTime = Date.now() - startTime;
         
         // Generate a mock Pine Script strategy (simplified)
-        const strategyCode = `// Generated ${promptDetails.name} strategy using ${modelId}
-// Complexity: ${complexity}
-// ${promptDetails.description}
-
-//@version=5
-strategy("${promptDetails.name}", overlay=true, commission_value=0.1, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
-
-// Parameters
-length = 20
-gauss_mult = 2.0
-stoch_length = 14
-smoothK = 3
-smoothD = 3
-
-// Calculate Gaussian Channels
-middle = ta.sma(close, length)
-stddev = ta.stdev(close, length)
-upper = middle + gauss_mult * stddev
-lower = middle - gauss_mult * stddev
-
-// Calculate Stochastic RSI
-rsi1 = ta.rsi(close, stoch_length)
-k = ta.sma(ta.stoch(rsi1, rsi1, rsi1, stoch_length), smoothK)
-d = ta.sma(k, smoothD)
-
-// Define strategy conditions
-longCondition = ${complexity === 'easy' ? 'close > upper' : 
-  complexity === 'medium' ? 'close > upper and k > 60' : 
-  'close > upper and k > d and k > 60'}
-  
-exitLongCondition = ${complexity === 'easy' ? 'close < lower' : 
-  complexity === 'medium' ? 'close < lower or k < 40' : 
-  'close < lower or k < d or k < 40'}
-
-// Execute strategy
-if (longCondition)
-    strategy.entry("Long", strategy.long)
-
-if (exitLongCondition)
-    strategy.close("Long")
-
-// Plot indicators
-plot(upper, "Upper Channel", color=color.rgb(0, 255, 0, 50))
-plot(middle, "Middle Channel", color=color.rgb(255, 255, 255, 50))
-plot(lower, "Lower Channel", color=color.rgb(255, 0, 0, 50))
-${complexity !== 'easy' ? 'plot(k, "K", color=color.blue)\nplot(d, "D", color=color.red)' : ''}`;
+        const strategyCode = generateMockPineScript(promptDetails, modelId, complexity);
         
         // Record evaluation metrics
         const evaluationMetrics: ModelEvaluationMetrics = {
@@ -173,71 +129,57 @@ ${complexity !== 'easy' ? 'plot(k, "K", color=color.blue)\nplot(d, "D", color=co
 };
 
 /**
- * Compare strategies from multiple AI models
+ * Helper function to generate mock Pine Script code
  */
-export const compareAIModels = async (
-  promptId: string,
-  modelIds: string[] = availableAIModels.filter(m => m.isAvailable).map(m => m.id)
-): Promise<AIStrategyGenerationResult[]> => {
-  try {
-    logger.info(`Comparing ${modelIds.length} AI models for prompt ${promptId}`);
-    
-    // Generate strategies in parallel
-    const results = await Promise.all(
-      modelIds.map(modelId => generateStrategy(modelId, promptId))
-    );
-    
-    // Create a comparison result
-    const evaluations: ModelEvaluationMetrics[] = results.map(result => {
-      // Convert AIStrategyGenerationResult to ModelEvaluationMetrics
-      return {
-        modelId: result.modelId,
-        codeQuality: result.codeQualityScore,
-        syntaxErrors: result.syntaxErrorCount,
-        promptAdherence: result.adherenceToInstructionsScore,
-        completionTime: result.generationTime,
-        tokenUsage: Math.round(500 + Math.random() * 1000), // Simulated
-        timestamp: result.timestamp,
-        promptId,
-        promptComplexity: result.promptComplexity,
-        backtestPerformance: {
-          sharpeRatio: 1.2 + Math.random() * 0.8,
-          maxDrawdown: 5 + Math.random() * 15,
-          winRate: 0.4 + Math.random() * 0.3,
-          profitFactor: 1.1 + Math.random() * 0.9,
-          totalTrades: 50 + Math.floor(Math.random() * 100),
-          annualizedReturn: 8 + Math.random() * 15
-        }
-      };
-    });
-    
-    // Calculate performance scores and find the best models
-    // Fix: renamed 'eval' to 'evaluation' to avoid using the reserved keyword
-    const scores = evaluations.map(evaluation => ({
-      modelId: evaluation.modelId,
-      score: calculatePerformanceScore(evaluation),
-      codeQuality: evaluation.codeQuality,
-      backtestScore: evaluation.backtestPerformance ? evaluation.backtestPerformance.sharpeRatio * evaluation.backtestPerformance.profitFactor : 0
-    }));
-    
-    // Find best models for different criteria
-    const bestOverall = scores.sort((a, b) => b.score - a.score)[0].modelId;
-    const bestForCodeQuality = scores.sort((a, b) => b.codeQuality - a.codeQuality)[0].modelId;
-    const bestForBacktesting = scores.sort((a, b) => b.backtestScore - a.backtestScore)[0].modelId;
-    
-    // Record the comparison
-    recordModelComparison({
-      evaluations,
-      bestOverall,
-      bestForCodeQuality,
-      bestForBacktesting,
-      timestamp: new Date().toISOString(),
-      promptId
-    });
-    
-    return results;
-  } catch (error) {
-    logger.error(`Error comparing AI models:`, error);
-    throw error;
-  }
+const generateMockPineScript = (
+  promptDetails: any, 
+  modelId: string, 
+  complexity: 'easy' | 'medium' | 'hard'
+): string => {
+  return `// Generated ${promptDetails.name} strategy using ${modelId}
+// Complexity: ${complexity}
+// ${promptDetails.description}
+
+//@version=5
+strategy("${promptDetails.name}", overlay=true, commission_value=0.1, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// Parameters
+length = 20
+gauss_mult = 2.0
+stoch_length = 14
+smoothK = 3
+smoothD = 3
+
+// Calculate Gaussian Channels
+middle = ta.sma(close, length)
+stddev = ta.stdev(close, length)
+upper = middle + gauss_mult * stddev
+lower = middle - gauss_mult * stddev
+
+// Calculate Stochastic RSI
+rsi1 = ta.rsi(close, stoch_length)
+k = ta.sma(ta.stoch(rsi1, rsi1, rsi1, stoch_length), smoothK)
+d = ta.sma(k, smoothD)
+
+// Define strategy conditions
+longCondition = ${complexity === 'easy' ? 'close > upper' : 
+  complexity === 'medium' ? 'close > upper and k > 60' : 
+  'close > upper and k > d and k > 60'}
+  
+exitLongCondition = ${complexity === 'easy' ? 'close < lower' : 
+  complexity === 'medium' ? 'close < lower or k < 40' : 
+  'close < lower or k < d or k < 40'}
+
+// Execute strategy
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+
+if (exitLongCondition)
+    strategy.close("Long")
+
+// Plot indicators
+plot(upper, "Upper Channel", color=color.rgb(0, 255, 0, 50))
+plot(middle, "Middle Channel", color=color.rgb(255, 255, 255, 50))
+plot(lower, "Lower Channel", color=color.rgb(255, 0, 0, 50))
+${complexity !== 'easy' ? 'plot(k, "K", color=color.blue)\nplot(d, "D", color=color.red)' : ''}`;
 };

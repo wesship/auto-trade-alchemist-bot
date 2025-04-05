@@ -1,6 +1,6 @@
 
 import { AIStrategyGenerationResult, StrategyPromptConfig } from './aiStrategy/types';
-import { Asset, TradeSignal, TradeExecution } from '../types/trading';
+import { Asset, TradeSignal, TradeExecution } from '@/types/trading';
 import { fetchMarketData } from './marketService';
 import { executeTradeAction } from './tradeService';
 import { generateStrategy, compareAIModels } from './aiStrategy/generation';
