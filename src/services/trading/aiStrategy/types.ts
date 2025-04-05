@@ -76,9 +76,9 @@ export interface StrategyGenerationParams {
 }
 
 /**
- * Strategy prompt interface
+ * Strategy prompt interface - renamed to avoid conflict
  */
-export interface StrategyPrompt {
+export interface StrategyPromptConfig {
   id: string;
   name: string;
   description: string;
@@ -94,7 +94,7 @@ export interface StrategyPrompt {
  * Strategy prompts organized by complexity
  */
 export interface StrategyPrompts {
-  easy: StrategyPrompt[];
-  medium: StrategyPrompt[];
-  hard: StrategyPrompt[];
+  easy: StrategyPromptConfig[];
+  medium: StrategyPromptConfig[];
+  hard: StrategyPromptConfig[];
 }
