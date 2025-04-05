@@ -4,3 +4,6 @@ export * from './models';
 export * from './prompts';
 export * from './generation';
 export * from './types';
+export * from './evaluation';
+export * from './abTesting';
+export * from './feedback';

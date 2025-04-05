@@ -1,4 +1,7 @@
 
+// Re-export everything from the models directory
+export * from './models/modelTypes';
+
 /**
  * Types for AI strategy generation and results
  */
@@ -12,25 +15,62 @@ export interface AIStrategyGenerationResult {
   adherenceToInstructionsScore: number;
   generationTime: number;
   timestamp: string;
+  version?: string;
 }
 
-export interface AIModel {
+/**
+ * Strategy version tracking
+ */
+export interface StrategyVersion {
+  version: string;
+  strategyCode: string;
+  timestamp: string;
+  modelId: string;
+  promptId: string;
+  changes?: string;
+}
+
+/**
+ * A/B testing configuration
+ */
+export interface ABTestConfig {
   id: string;
   name: string;
   description: string;
-  isAvailable: boolean;
-  isNew?: boolean;
+  modelIds: string[];
+  promptId: string;
+  metrics: string[];
+  startDate: string;
+  endDate?: string;
+  status: 'scheduled' | 'running' | 'completed' | 'cancelled';
 }
 
-export interface StrategyPrompt {
-  id: string;
-  name: string;
-  description: string;
-  prompt: string;
+/**
+ * User feedback for a generated strategy
+ */
+export interface StrategyFeedback {
+  strategyId: string;
+  userId: string;
+  rating: number;
+  comments?: string;
+  usability?: number;
+  profitability?: number;
+  complexity?: number;
+  timestamp: string;
 }
 
-export interface StrategyPrompts {
-  easy: StrategyPrompt[];
-  medium: StrategyPrompt[];
-  hard: StrategyPrompt[];
+/**
+ * Strategy generation parameters
+ */
+export interface StrategyGenerationParams {
+  modelId: string;
+  promptId: string;
+  marketContext?: {
+    symbol: string;
+    timeframe: string;
+    marketCondition?: 'bullish' | 'bearish' | 'sideways' | 'volatile';
+  };
+  customPromptModifiers?: string[];
+  maxTokens?: number;
+  temperature?: number;
 }

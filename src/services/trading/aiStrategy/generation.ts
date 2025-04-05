@@ -1,10 +1,10 @@
 
 import logger from '@/utils/logger';
 import { withRetry } from '../utils';
-import modelMonitoring from '@/utils/modelMonitoring';
 import { availableAIModels } from './models';
 import { strategyPrompts } from './prompts';
 import { AIStrategyGenerationResult } from './types';
+import { ModelEvaluationMetrics, recordModelEvaluation, recordModelComparison, calculatePerformanceScore } from './evaluation';
 
 /**
  * Mock function to generate a Pine Script trading strategy using a specified AI model
@@ -47,6 +47,8 @@ export const generateStrategy = async (
           'horizon-ai': { quality: 0.75, errors: 0.6, adherence: 0.8 },
           'gemini-1.5': { quality: 0.6, errors: 1.2, adherence: 0.7 },
           'grok3': { quality: 0.8, errors: 0.4, adherence: 0.85 },
+          'sentiment-expert': { quality: 0.85, errors: 0.4, adherence: 0.9 },
+          'fundamental-ai': { quality: 0.82, errors: 0.5, adherence: 0.88 },
         };
         
         // Adjust scores based on complexity
@@ -70,6 +72,9 @@ export const generateStrategy = async (
         
         const baseAdherenceScore = performanceFactor.adherence * complexityFactor[complexity] * 10;
         const adherenceToInstructionsScore = Math.min(10, Math.max(1, baseAdherenceScore * randomFactor()));
+        
+        // Calculate generation time
+        const generationTime = Date.now() - startTime;
         
         // Generate a mock Pine Script strategy (simplified)
         const strategyCode = `// Generated ${promptDetails.name} strategy using ${modelId}
@@ -119,8 +124,29 @@ plot(middle, "Middle Channel", color=color.rgb(255, 255, 255, 50))
 plot(lower, "Lower Channel", color=color.rgb(255, 0, 0, 50))
 ${complexity !== 'easy' ? 'plot(k, "K", color=color.blue)\nplot(d, "D", color=color.red)' : ''}`;
         
-        // Calculate generation time
-        const generationTime = Date.now() - startTime;
+        // Record evaluation metrics
+        const evaluationMetrics: ModelEvaluationMetrics = {
+          modelId,
+          codeQuality: codeQualityScore,
+          syntaxErrors: syntaxErrorCount,
+          promptAdherence: adherenceToInstructionsScore,
+          completionTime: generationTime,
+          tokenUsage: Math.round(500 + Math.random() * 1000), // Simulated token usage
+          timestamp: new Date().toISOString(),
+          promptId,
+          promptComplexity: complexity,
+          backtestPerformance: {
+            sharpeRatio: 1.2 + Math.random() * 0.8,
+            maxDrawdown: 5 + Math.random() * 15,
+            winRate: 0.4 + Math.random() * 0.3,
+            profitFactor: 1.1 + Math.random() * 0.9,
+            totalTrades: 50 + Math.floor(Math.random() * 100),
+            annualizedReturn: 8 + Math.random() * 15
+          }
+        };
+        
+        // Record metrics
+        recordModelEvaluation(evaluationMetrics);
         
         const result: AIStrategyGenerationResult = {
           modelId,
@@ -133,22 +159,6 @@ ${complexity !== 'easy' ? 'plot(k, "K", color=color.blue)\nplot(d, "D", color=co
           generationTime,
           timestamp: new Date().toISOString()
         };
-        
-        // Record the comparison data in model monitoring
-        modelMonitoring.recordModelComparison([{
-          modelId,
-          promptComplexity: complexity,
-          strategyType: promptDetails.name,
-          codeQualityScore,
-          syntaxErrorCount,
-          adherenceToInstructionsScore,
-          backtestPerformance: {
-            sharpeRatio: 1.2 + Math.random() * 0.8,
-            maxDrawdown: 5 + Math.random() * 15,
-            winRate: 0.4 + Math.random() * 0.3,
-            profitFactor: 1.1 + Math.random() * 0.9
-          }
-        }]);
         
         logger.info(`Generated strategy with model ${modelId}, quality score: ${codeQualityScore.toFixed(2)}`);
         resolve(result);
@@ -174,6 +184,53 @@ export const compareAIModels = async (
     const results = await Promise.all(
       modelIds.map(modelId => generateStrategy(modelId, promptId))
     );
+    
+    // Create a comparison result
+    const evaluations: ModelEvaluationMetrics[] = results.map(result => {
+      // Convert AIStrategyGenerationResult to ModelEvaluationMetrics
+      return {
+        modelId: result.modelId,
+        codeQuality: result.codeQualityScore,
+        syntaxErrors: result.syntaxErrorCount,
+        promptAdherence: result.adherenceToInstructionsScore,
+        completionTime: result.generationTime,
+        tokenUsage: Math.round(500 + Math.random() * 1000), // Simulated
+        timestamp: result.timestamp,
+        promptId,
+        promptComplexity: result.promptComplexity,
+        backtestPerformance: {
+          sharpeRatio: 1.2 + Math.random() * 0.8,
+          maxDrawdown: 5 + Math.random() * 15,
+          winRate: 0.4 + Math.random() * 0.3,
+          profitFactor: 1.1 + Math.random() * 0.9,
+          totalTrades: 50 + Math.floor(Math.random() * 100),
+          annualizedReturn: 8 + Math.random() * 15
+        }
+      };
+    });
+    
+    // Calculate performance scores and find the best models
+    const scores = evaluations.map(eval => ({
+      modelId: eval.modelId,
+      score: calculatePerformanceScore(eval),
+      codeQuality: eval.codeQuality,
+      backtestScore: eval.backtestPerformance ? eval.backtestPerformance.sharpeRatio * eval.backtestPerformance.profitFactor : 0
+    }));
+    
+    // Find best models for different criteria
+    const bestOverall = scores.sort((a, b) => b.score - a.score)[0].modelId;
+    const bestForCodeQuality = scores.sort((a, b) => b.codeQuality - a.codeQuality)[0].modelId;
+    const bestForBacktesting = scores.sort((a, b) => b.backtestScore - a.backtestScore)[0].modelId;
+    
+    // Record the comparison
+    recordModelComparison({
+      evaluations,
+      bestOverall,
+      bestForCodeQuality,
+      bestForBacktesting,
+      timestamp: new Date().toISOString(),
+      promptId
+    });
     
     return results;
   } catch (error) {
