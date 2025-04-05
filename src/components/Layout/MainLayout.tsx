@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarProvider
 } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "./Header";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -56,68 +57,70 @@ const MainLayout = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={!isMobile} open={sidebarOpen} onOpenChange={setSidebarOpen}>
-      <div className="flex h-full min-h-screen w-full bg-background">
-        <Sidebar aria-label="Sidebar" className="border-r bg-card">
-          <SidebarHeader className="flex items-center py-4 px-6">
-            <Link to="/dashboard">
-              <div className="flex items-center">
-                <div className="relative size-10 flex items-center justify-center rounded-full bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+    <TooltipProvider>
+      <SidebarProvider defaultOpen={!isMobile} open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <div className="flex h-full min-h-screen w-full bg-background">
+          <Sidebar aria-label="Sidebar" className="border-r bg-card">
+            <SidebarHeader className="flex items-center py-4 px-6">
+              <Link to="/dashboard">
+                <div className="flex items-center">
+                  <div className="relative size-10 flex items-center justify-center rounded-full bg-primary/10">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="ml-3">
+                    <h1 className="text-lg font-semibold">AI Trading</h1>
+                    <p className="text-xs text-muted-foreground">
+                      Algorithmic Platform
+                    </p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <h1 className="text-lg font-semibold">AI Trading</h1>
-                  <p className="text-xs text-muted-foreground">
-                    Algorithmic Platform
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </SidebarHeader>
-          <SidebarContent className="py-2">
-            <SidebarMenu>
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={
-                      item.href === "/dashboard"
-                        ? location.pathname === item.href
-                        : location.pathname.startsWith(item.href)
-                    }
-                    tooltip={item.name}
-                    className="group px-3 mb-1 mx-1.5"
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="h-4 w-4 mr-4 group-hover:text-primary" />
-                      <span>{item.name}</span>
+              </Link>
+            </SidebarHeader>
+            <SidebarContent className="py-2">
+              <SidebarMenu>
+                {navigation.map((item) => (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={
+                        item.href === "/dashboard"
+                          ? location.pathname === item.href
+                          : location.pathname.startsWith(item.href)
+                      }
+                      tooltip={item.name}
+                      className="group px-3 mb-1 mx-1.5"
+                    >
+                      <Link to={item.href}>
+                        <item.icon className="h-4 w-4 mr-4 group-hover:text-primary" />
+                        <span>{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Settings" className="group px-3 mb-1 mx-1.5">
+                    <Link to="/settings">
+                      <Settings className="h-4 w-4 mr-4 group-hover:text-primary" />
+                      <span>Settings</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Settings" className="group px-3 mb-1 mx-1.5">
-                  <Link to="/settings">
-                    <Settings className="h-4 w-4 mr-4 group-hover:text-primary" />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-          <Header />
-          <main className="flex-1 overflow-auto">
-            <Outlet />
-          </main>
+              </SidebarMenu>
+            </SidebarFooter>
+          </Sidebar>
+          <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+            <Header />
+            <main className="flex-1 overflow-auto">
+              <Outlet />
+            </main>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 };
 
