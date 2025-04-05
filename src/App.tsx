@@ -26,7 +26,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
         <TooltipProvider>
           <Router>
             <Routes>
@@ -46,7 +46,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" theme="dark" />
           </Router>
         </TooltipProvider>
       </ThemeProvider>

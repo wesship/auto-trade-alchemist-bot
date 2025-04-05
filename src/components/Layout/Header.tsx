@@ -1,20 +1,21 @@
+
 import { Bell, Menu, Moon, MessageSquare, Settings, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useTheme } from "@/components/theme-provider";
 
 const Header = () => {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
-    // In a real app, we'd actually change the theme here
   };
 
   return (
@@ -83,7 +84,7 @@ const Header = () => {
           )}
 
           <NavLink to="/" className="flex items-center gap-2">
-            <div className="font-bold text-primary text-lg">
+            <div className="font-bold text-lg">
               <span className="inline-block">
                 <span className="text-foreground">AutoTrade</span>
                 <span className="text-primary">Alchemist</span>
