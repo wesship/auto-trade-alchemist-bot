@@ -3,16 +3,43 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User, Trash2 } from "lucide-react";
+import { Loader2, Send, Bot, User, Trash2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useChatbot } from "@/hooks/use-chatbot";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useSpeechSynthesis } from 'react-speech-kit';
 
 const ChatInterface = () => {
   const [userInput, setUserInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, sendMessage, clearMessages } = useChatbot();
+  const { messages, isLoading, isSpeaking, setIsSpeaking, sendMessage, clearMessages } = useChatbot();
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  
+  const { speak, cancel, speaking } = useSpeechSynthesis();
+  
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (transcript) {
+      setUserInput(transcript);
+    }
+  }, [transcript]);
+
+  useEffect(() => {
+    setIsListening(listening);
+  }, [listening]);
+
+  useEffect(() => {
+    setIsSpeaking(speaking);
+  }, [speaking, setIsSpeaking]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,10 +47,16 @@ const ChatInterface = () => {
     
     const message = userInput.trim();
     setUserInput("");
+    resetTranscript();
     
     try {
       setShowTypingIndicator(true);
-      await sendMessage(message);
+      const response = await sendMessage(message);
+      
+      // Read the response aloud if voice is enabled
+      if (voiceEnabled && response) {
+        speak({ text: response });
+      }
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
       console.error("Error sending message:", error);
@@ -34,7 +67,25 @@ const ChatInterface = () => {
 
   const handleClearChat = () => {
     clearMessages();
+    resetTranscript();
+    cancel();
     toast.success("Conversation cleared");
+  };
+
+  const toggleListening = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+    } else {
+      resetTranscript();
+      SpeechRecognition.startListening({ continuous: true });
+    }
+  };
+
+  const toggleVoice = () => {
+    setVoiceEnabled(!voiceEnabled);
+    if (speaking) {
+      cancel();
+    }
   };
 
   // Auto-scroll to the bottom of the chat
@@ -49,17 +100,39 @@ const ChatInterface = () => {
           <Bot className="w-4 h-4" />
           <span className="text-sm font-medium">AI Assistant</span>
         </div>
-        {messages.length > 0 && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleClearChat}
-            className="text-muted-foreground hover:text-destructive"
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleVoice}
+            title={voiceEnabled ? "Mute voice" : "Enable voice"}
+            className="text-muted-foreground"
           >
-            <Trash2 className="w-4 h-4 mr-1" />
-            Clear chat
+            {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </Button>
-        )}
+          {browserSupportsSpeechRecognition && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleListening}
+              title={isListening ? "Stop listening" : "Start listening"}
+              className={isListening ? "text-primary" : "text-muted-foreground"}
+            >
+              {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+            </Button>
+          )}
+          {messages.length > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearChat}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Clear chat
+            </Button>
+          )}
+        </div>
       </div>
       <ScrollArea className="flex-1 p-4 border rounded-md bg-card mb-4">
         <div className="space-y-4">
@@ -116,6 +189,19 @@ const ChatInterface = () => {
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }}></div>
                   <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "600ms" }}></div>
                 </div>
+              </div>
+            </div>
+          )}
+          {isListening && !isLoading && (
+            <div className="flex gap-3 p-4 rounded-lg bg-accent ml-12">
+              <div className="flex-shrink-0 mt-1">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
+                  <Mic className="w-4 h-4 text-primary-foreground animate-pulse" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="font-medium mb-1">Listening...</div>
+                <div className="whitespace-pre-wrap">{transcript}</div>
               </div>
             </div>
           )}

@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React from "react";
 import ChatInterface from "@/components/Chat/ChatInterface";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useChatbot } from "@/hooks/use-chatbot";
+import { Mic, Volume2 } from "lucide-react";
 
 const Chatbot = () => {
   const { sendMessage } = useChatbot();
@@ -62,6 +63,30 @@ const Chatbot = () => {
           
           <Card>
             <CardHeader>
+              <CardTitle>Voice Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Mic className="w-4 h-4 text-primary" />
+                  <div>
+                    <p className="font-medium">Speech-to-Text</p>
+                    <p className="text-sm text-muted-foreground">Speak to the assistant and have your words converted to text</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-primary" />
+                  <div>
+                    <p className="font-medium">Text-to-Speech</p>
+                    <p className="text-sm text-muted-foreground">Listen to the assistant's responses read aloud</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
               <CardTitle>AI Assistant Stats</CardTitle>
             </CardHeader>
             <CardContent>
@@ -81,6 +106,10 @@ const Chatbot = () => {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Market Data:</span>
                   <span className="font-medium">Up to date</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Voice Features:</span>
+                  <span className="font-medium">Enabled</span>
                 </div>
               </div>
             </CardContent>

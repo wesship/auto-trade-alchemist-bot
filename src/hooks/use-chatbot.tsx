@@ -11,6 +11,7 @@ export type ChatMessage = {
 export function useChatbot() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Initialize with welcome message
   useEffect(() => {
@@ -39,9 +40,12 @@ export function useChatbot() {
       
       // Add assistant response to chat
       setMessages((prev) => [...prev, { role: "assistant", content: response }]);
+      
+      return response; // Return the response for speech synthesis
     } catch (error) {
       console.error("Error in chat completion:", error);
       toast.error("Failed to get AI response. Please try again.");
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -54,6 +58,8 @@ export function useChatbot() {
   return {
     messages,
     isLoading,
+    isSpeaking,
+    setIsSpeaking,
     sendMessage,
     clearMessages,
   };
