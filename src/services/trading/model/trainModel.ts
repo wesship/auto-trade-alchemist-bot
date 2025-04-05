@@ -1,5 +1,5 @@
 
-import { mockTrainModel } from '../../mockData';
+import { trainModel as mockTrainModel } from '../../mockData';
 import logger from '@/utils/logger';
 import { withRetry } from '../utils';
 import securityUtils from '@/utils/securityUtils';
@@ -31,7 +31,7 @@ export const trainModel = async (modelId: string): Promise<{ success: boolean; m
     // Use circuit breaker if feature is enabled
     if (featureFlags.isEnabled('CIRCUIT_BREAKER')) {
       const circuitBreaker = getCircuitBreaker('model-training');
-      const result = await circuitBreaker.execute(() => mockTrainModel(modelId));
+      const result = await circuitBreaker.execute<{ success: boolean; message: string }>(() => mockTrainModel(modelId));
       
       if (result.success) {
         logger.info(`Model ${modelId} training initiated successfully`);
@@ -53,7 +53,7 @@ export const trainModel = async (modelId: string): Promise<{ success: boolean; m
       
       return result;
     } else {
-      const result = await withRetry(() => mockTrainModel(modelId));
+      const result = await withRetry<{ success: boolean; message: string }>(() => mockTrainModel(modelId));
       
       if (result.success) {
         logger.info(`Model ${modelId} training initiated successfully`);
