@@ -1,12 +1,6 @@
-import { ModelDriftStatus } from '../../types/trading';
-import logger from '@/utils/logger';
 
-export const ModelDriftStatusValues = {
-  NORMAL: 'NORMAL' as ModelDriftStatus,
-  SLIGHT: 'SLIGHT' as ModelDriftStatus,
-  SIGNIFICANT: 'SIGNIFICANT' as ModelDriftStatus,
-  CRITICAL: 'CRITICAL' as ModelDriftStatus,
-};
+import { ModelHealth, ModelDriftStatus } from '../../types/trading';
+import logger from '@/utils/logger';
 
 /**
  * Generate sample model health data
