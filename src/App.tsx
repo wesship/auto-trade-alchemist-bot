@@ -44,8 +44,8 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
+          <Toaster position="top-right" />
         </Router>
-        <Toaster position="top-right" />
       </TooltipProvider>
     </QueryClientProvider>
   );

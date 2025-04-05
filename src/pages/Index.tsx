@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Brain, BarChart3, TrendingUp } from 'lucide-react';
+import { Brain, BarChart3, TrendingUp, ChevronRight } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -31,6 +31,12 @@ const Index = () => {
               AI Models
             </Link>
           </Button>
+        </div>
+        
+        <div className="mt-12 text-muted-foreground">
+          <p className="text-sm">
+            2025 © AI Trading Platform - All rights reserved
+          </p>
         </div>
       </div>
     </div>
