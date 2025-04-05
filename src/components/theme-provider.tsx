@@ -16,9 +16,19 @@ export function useTheme() {
     React.createContext({ theme: "dark", setTheme: (theme: string) => {} })
   )
 
+  // We need to use useEffect to ensure the component is mounted
+  // before we try to access the theme
   React.useEffect(() => {
     setMounted(true)
-  }, [])
+    
+    // Apply dark class to html element when using dark theme
+    const htmlElement = document.documentElement;
+    if (theme === 'dark') {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   return { 
     theme: mounted ? theme : "dark", 
