@@ -3,12 +3,24 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User, Trash2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { 
+  Loader2, Send, Bot, User, Trash2, Mic, MicOff, 
+  Volume2, VolumeX, HelpCircle, Command
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useChatbot } from "@/hooks/use-chatbot";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useSpeechSynthesis } from 'react-speech-kit';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 const ChatInterface = () => {
   const [userInput, setUserInput] = useState("");
@@ -18,6 +30,8 @@ const ChatInterface = () => {
   const [isListening, setIsListening] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [recordingPulse, setRecordingPulse] = useState(false);
+  const [showCommandsDialog, setShowCommandsDialog] = useState(false);
+  const [lastProcessedCommand, setLastProcessedCommand] = useState("");
   
   const { speak, cancel, speaking } = useSpeechSynthesis();
   
@@ -28,9 +42,48 @@ const ChatInterface = () => {
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
+  // Define voice commands
+  const voiceCommands = [
+    { command: "send", action: "Sends the current message" },
+    { command: "clear", action: "Clears the conversation" },
+    { command: "mute", action: "Toggles voice response on/off" },
+    { command: "stop listening", action: "Stops voice recognition" },
+    { command: "help", action: "Shows voice commands help" },
+  ];
+
   useEffect(() => {
     if (transcript) {
       setUserInput(transcript);
+      
+      // Check for voice commands (only when transcript changes)
+      const lowerTranscript = transcript.toLowerCase().trim();
+      
+      // Process commands only if they haven't been processed yet
+      if (lowerTranscript !== lastProcessedCommand) {
+        if (lowerTranscript === "send" && userInput.trim()) {
+          handleSendMessage(new Event('submit') as any);
+          setLastProcessedCommand(lowerTranscript);
+          resetTranscript();
+        } else if (lowerTranscript === "clear") {
+          handleClearChat();
+          setLastProcessedCommand(lowerTranscript);
+          resetTranscript();
+          toast.success("Chat cleared by voice command");
+        } else if (lowerTranscript === "mute" || lowerTranscript === "unmute") {
+          toggleVoice();
+          setLastProcessedCommand(lowerTranscript);
+          resetTranscript();
+        } else if (lowerTranscript === "stop listening") {
+          SpeechRecognition.stopListening();
+          setLastProcessedCommand(lowerTranscript);
+          resetTranscript();
+          toast.info("Voice recognition stopped by command");
+        } else if (lowerTranscript === "help") {
+          setShowCommandsDialog(true);
+          setLastProcessedCommand(lowerTranscript);
+          resetTranscript();
+        }
+      }
     }
   }, [transcript]);
 
@@ -41,6 +94,8 @@ const ChatInterface = () => {
       setRecordingPulse(true);
     } else {
       setTimeout(() => setRecordingPulse(false), 300);
+      // Reset last processed command when listening stops
+      setLastProcessedCommand("");
     }
   }, [listening]);
 
@@ -98,6 +153,33 @@ const ChatInterface = () => {
     toast.info(voiceEnabled ? "Voice responses turned off" : "Voice responses enabled");
   };
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Alt+M to toggle mic
+      if (e.altKey && e.key === 'm' && browserSupportsSpeechRecognition) {
+        toggleListening();
+      }
+      // Alt+V to toggle voice responses
+      if (e.altKey && e.key === 'v') {
+        toggleVoice();
+      }
+      // Alt+C to clear chat
+      if (e.altKey && e.key === 'c') {
+        handleClearChat();
+      }
+      // Alt+H to show help
+      if (e.altKey && e.key === 'h') {
+        setShowCommandsDialog(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [listening, voiceEnabled]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, showTypingIndicator]);
@@ -110,11 +192,77 @@ const ChatInterface = () => {
           <span className="text-sm font-medium">AI Assistant</span>
         </div>
         <div className="flex gap-2">
+          <Dialog open={showCommandsDialog} onOpenChange={setShowCommandsDialog}>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Help & Commands"
+                className="text-muted-foreground hover:text-primary"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Command className="w-4 h-4" /> Voice Commands & Shortcuts
+                </DialogTitle>
+                <DialogDescription>
+                  Use these commands to control the chat interface with your voice or keyboard.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Voice Commands</h4>
+                  <ul className="space-y-2">
+                    {voiceCommands.map((cmd, i) => (
+                      <li key={i} className="flex justify-between items-center">
+                        <Badge variant="outline" className="font-mono">
+                          {cmd.command}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">{cmd.action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Keyboard Shortcuts</h4>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Alt+M</Badge>
+                      <span className="text-sm text-muted-foreground">Toggle microphone</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Alt+V</Badge>
+                      <span className="text-sm text-muted-foreground">Toggle voice responses</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Alt+C</Badge>
+                      <span className="text-sm text-muted-foreground">Clear conversation</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Alt+H</Badge>
+                      <span className="text-sm text-muted-foreground">Show this help dialog</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Enter</Badge>
+                      <span className="text-sm text-muted-foreground">Send message</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <Badge variant="outline" className="font-mono">Shift+Enter</Badge>
+                      <span className="text-sm text-muted-foreground">New line in message</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleVoice}
-            title={voiceEnabled ? "Mute voice" : "Enable voice"}
+            title={voiceEnabled ? "Mute voice (Alt+V)" : "Enable voice (Alt+V)"}
             className={cn(
               "text-muted-foreground transition-colors",
               voiceEnabled && "text-primary hover:text-primary/80"
@@ -127,15 +275,23 @@ const ChatInterface = () => {
               variant={recordingPulse ? "default" : "ghost"}
               size="icon"
               onClick={toggleListening}
-              title={isListening ? "Stop listening" : "Start listening"}
+              title={isListening ? "Stop listening (Alt+M)" : "Start listening (Alt+M)"}
               className={cn(
-                "transition-colors",
+                "transition-colors relative",
                 isListening 
-                  ? "bg-primary text-primary-foreground animate-pulse" 
+                  ? "bg-primary text-primary-foreground" 
                   : "text-muted-foreground hover:text-primary"
               )}
             >
               {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+              {/* Sound wave animation when listening */}
+              {isListening && (
+                <span className="absolute inset-0 rounded-md">
+                  <span className="absolute inset-0 animate-ping rounded-md bg-primary/30"></span>
+                  <span className="absolute inset-[-4px] animate-ping delay-150 rounded-md bg-primary/20"></span>
+                  <span className="absolute inset-[-8px] animate-ping delay-300 rounded-md bg-primary/10"></span>
+                </span>
+              )}
             </Button>
           )}
           {messages.length > 0 && (
@@ -143,6 +299,7 @@ const ChatInterface = () => {
               variant="ghost" 
               size="sm" 
               onClick={handleClearChat}
+              title="Clear chat (Alt+C)"
               className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="w-4 h-4 mr-1" />
@@ -161,14 +318,19 @@ const ChatInterface = () => {
                 Ask me anything about trading, market analysis, or how to use AI for your investment strategies.
               </p>
               {browserSupportsSpeechRecognition && (
-                <Button 
-                  onClick={toggleListening} 
-                  variant="outline"
-                  className="mt-4 flex items-center gap-2"
-                >
-                  <Mic className="w-4 h-4" />
-                  Try using voice commands
-                </Button>
+                <div className="mt-4 space-y-2">
+                  <Button 
+                    onClick={toggleListening} 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Mic className="w-4 h-4" />
+                    Try using voice commands
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Say "help" to see available commands or press Alt+H
+                  </p>
+                </div>
               )}
             </div>
           ) : (
@@ -176,10 +338,12 @@ const ChatInterface = () => {
               <div
                 key={index}
                 className={cn(
-                  "flex gap-3 p-4 rounded-lg",
+                  "flex gap-3 p-4 rounded-lg transition-all duration-300",
                   msg.role === "user"
                     ? "bg-accent ml-12"
-                    : "bg-primary/10 mr-12"
+                    : "bg-primary/10 mr-12",
+                  // Add animation for new messages
+                  index === messages.length - 1 && "animate-fade-in"
                 )}
               >
                 <div className="flex-shrink-0 mt-1">
@@ -194,10 +358,17 @@ const ChatInterface = () => {
                   )}
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <div className="font-medium mb-1">
+                  <div className="font-medium mb-1 flex items-center gap-2">
                     {msg.role === "user" ? "You" : "AI Assistant"}
+                    {msg.role === "assistant" && isSpeaking && (
+                      <Badge variant="outline" className="text-xs animate-pulse">
+                        Speaking
+                      </Badge>
+                    )}
                   </div>
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  <div className="whitespace-pre-wrap">
+                    {msg.content}
+                  </div>
                 </div>
               </div>
             ))
@@ -227,7 +398,15 @@ const ChatInterface = () => {
                 </div>
               </div>
               <div className="flex-1">
-                <div className="font-medium mb-1">Listening...</div>
+                <div className="font-medium mb-1 flex items-center gap-2">
+                  Listening...
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-6 bg-primary/60 rounded animate-[sound_0.5s_ease-in-out_infinite_alternate]" style={{ animationDelay: "0ms" }}></div>
+                    <div className="w-1 h-10 bg-primary/80 rounded animate-[sound_0.5s_ease-in-out_infinite_alternate]" style={{ animationDelay: "0.33s" }}></div>
+                    <div className="w-1 h-8 bg-primary/70 rounded animate-[sound_0.5s_ease-in-out_infinite_alternate]" style={{ animationDelay: "0.66s" }}></div>
+                    <div className="w-1 h-4 bg-primary/50 rounded animate-[sound_0.5s_ease-in-out_infinite_alternate]" style={{ animationDelay: "0.99s" }}></div>
+                  </div>
+                </div>
                 <div className="whitespace-pre-wrap">{transcript}</div>
               </div>
             </div>
@@ -238,7 +417,7 @@ const ChatInterface = () => {
 
       <form onSubmit={handleSendMessage} className="flex gap-2">
         <Textarea
-          placeholder={isListening ? "Speak now or type your message..." : "Ask about trading strategies, market analysis, or AI predictions..."}
+          placeholder={isListening ? "Speak now or type your message... (say 'send' to submit)" : "Ask about trading strategies, market analysis, or AI predictions..."}
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           className={cn(
