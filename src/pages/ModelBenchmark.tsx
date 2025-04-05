@@ -1,12 +1,9 @@
-
 import React, { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { BarChart3, Calendar, TrendingUp } from "lucide-react";
+import { Calendar, TrendingUp } from "lucide-react";
 import { availableAIModels } from "@/services/trading/aiStrategyService";
-import ModelBenchmarking from "@/components/Models/ModelBenchmarking";
+import ModelBenchmarking from "@/components/Models/Benchmark";
 
 const ModelBenchmark = () => {
   const [selectedModel, setSelectedModel] = useState<string>(availableAIModels[0].id);
