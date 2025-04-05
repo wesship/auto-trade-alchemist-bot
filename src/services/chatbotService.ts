@@ -17,7 +17,7 @@ export async function fetchChatResponse(messages: ChatMessage[]): Promise<string
       messages = [
         {
           role: "system",
-          content: `You are an AI assistant for a trading platform called AI Trading Alchemist. 
+          content: `You are an AI assistant for a trading platform called AutoTrade Alchemist. 
                     Provide accurate, helpful information about trading, market analysis, and investment strategies. 
                     Your responses should be concise, accurate, and tailored to traders.
                     You can explain trading concepts, analyze market trends, and suggest strategies, 
@@ -68,6 +68,8 @@ export async function fetchChatResponse(messages: ChatMessage[]): Promise<string
       return "For volatile markets, a dollar-cost averaging strategy may help reduce the impact of price volatility. This involves regularly investing a fixed amount regardless of market conditions. Our AI models currently favor defensive sectors with strong fundamental indicators.";
     } else if (lastMessage.includes("crypto") || lastMessage.includes("bitcoin")) {
       return "Cryptocurrency markets remain highly volatile. Our AI indicators show increased institutional interest in Bitcoin, but regulatory concerns continue to create uncertainty. Consider allocating only a small percentage of your portfolio to crypto assets.";
+    } else if (lastMessage.includes("ai") || lastMessage.includes("artificial intelligence")) {
+      return "AI can enhance trading decisions by analyzing vast amounts of market data much faster than humans can. Our platform uses machine learning to identify patterns and correlations across multiple markets simultaneously. However, AI models are only as good as their training data, so we combine AI insights with human oversight for the best results.";
     } else {
       return "I'm here to help with your trading questions. Feel free to ask about specific markets, trading strategies, or how our AI tools can enhance your investment decisions. Remember that all investments carry risk, and it's important to do your own research.";
     }

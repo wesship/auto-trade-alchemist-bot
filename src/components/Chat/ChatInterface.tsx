@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User } from "lucide-react";
+import { Loader2, Send, Bot, User, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useChatbot } from "@/hooks/use-chatbot";
@@ -11,7 +11,8 @@ import { useChatbot } from "@/hooks/use-chatbot";
 const ChatInterface = () => {
   const [userInput, setUserInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, sendMessage } = useChatbot();
+  const { messages, isLoading, sendMessage, clearMessages } = useChatbot();
+  const [showTypingIndicator, setShowTypingIndicator] = useState(false);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,20 +22,45 @@ const ChatInterface = () => {
     setUserInput("");
     
     try {
+      setShowTypingIndicator(true);
       await sendMessage(message);
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
       console.error("Error sending message:", error);
+    } finally {
+      setShowTypingIndicator(false);
     }
+  };
+
+  const handleClearChat = () => {
+    clearMessages();
+    toast.success("Conversation cleared");
   };
 
   // Auto-scroll to the bottom of the chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, showTypingIndicator]);
 
   return (
     <div className="flex flex-col h-[60vh]">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-2 text-primary">
+          <Bot className="w-4 h-4" />
+          <span className="text-sm font-medium">AI Assistant</span>
+        </div>
+        {messages.length > 0 && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearChat}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            Clear chat
+          </Button>
+        )}
+      </div>
       <ScrollArea className="flex-1 p-4 border rounded-md bg-card mb-4">
         <div className="space-y-4">
           {messages.length === 0 ? (
@@ -75,6 +101,23 @@ const ChatInterface = () => {
                 </div>
               </div>
             ))
+          )}
+          {showTypingIndicator && (
+            <div className="flex gap-3 p-4 rounded-lg bg-primary/10 mr-12 animate-pulse">
+              <div className="flex-shrink-0 mt-1">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+                  <Bot className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="font-medium mb-1">AI Assistant</div>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "600ms" }}></div>
+                </div>
+              </div>
+            </div>
           )}
           <div ref={messagesEndRef} />
         </div>

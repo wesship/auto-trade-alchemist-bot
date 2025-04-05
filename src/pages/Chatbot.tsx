@@ -1,9 +1,23 @@
 
-import React from "react";
+import React, { useState } from "react";
 import ChatInterface from "@/components/Chat/ChatInterface";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useChatbot } from "@/hooks/use-chatbot";
 
 const Chatbot = () => {
+  const { sendMessage } = useChatbot();
+  
+  const suggestedPrompts = [
+    "Analyze the current market trends for cryptocurrencies",
+    "Recommend a trading strategy for volatile markets",
+    "What are the pros and cons of momentum trading?",
+    "Explain how AI can improve trading decisions"
+  ];
+
+  const handlePromptClick = (prompt: string) => {
+    sendMessage(prompt);
+  };
+
   return (
     <div className="container p-4 mx-auto">
       <div className="mb-6">
@@ -33,18 +47,15 @@ const Chatbot = () => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                <li className="p-2 border rounded-md hover:bg-accent cursor-pointer">
-                  "Analyze the current market trends for cryptocurrencies"
-                </li>
-                <li className="p-2 border rounded-md hover:bg-accent cursor-pointer">
-                  "Recommend a trading strategy for volatile markets"
-                </li>
-                <li className="p-2 border rounded-md hover:bg-accent cursor-pointer">
-                  "What are the pros and cons of momentum trading?"
-                </li>
-                <li className="p-2 border rounded-md hover:bg-accent cursor-pointer">
-                  "Explain how AI can improve trading decisions"
-                </li>
+                {suggestedPrompts.map((prompt, index) => (
+                  <li 
+                    key={index}
+                    className="p-2 border rounded-md hover:bg-accent cursor-pointer transition-colors"
+                    onClick={() => handlePromptClick(prompt)}
+                  >
+                    "{prompt}"
+                  </li>
+                ))}
               </ul>
             </CardContent>
           </Card>
