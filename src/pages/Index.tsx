@@ -1,9 +1,40 @@
 
-import { Navigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Brain, BarChart3, TrendingUp } from 'lucide-react';
 
-// Redirect from Index to Dashboard
 const Index = () => {
-  return <Navigate to="/dashboard" replace />;
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+      <div className="max-w-3xl text-center">
+        <div className="flex justify-center mb-6">
+          <div className="relative size-16 flex items-center justify-center rounded-full bg-primary/10">
+            <TrendingUp className="h-8 w-8 text-primary" />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold mb-4">AI Trading Algorithmic Platform</h1>
+        <p className="text-xl text-muted-foreground mb-8">
+          Advanced machine learning algorithms for market prediction and automated trading strategies
+        </p>
+        
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button asChild size="lg" className="gap-2">
+            <Link to="/dashboard">
+              <BarChart3 className="h-5 w-5" />
+              Dashboard
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="gap-2">
+            <Link to="/models">
+              <Brain className="h-5 w-5" />
+              AI Models
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Index;
