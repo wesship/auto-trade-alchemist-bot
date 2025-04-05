@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import { availableAIModels } from "@/services/trading/aiStrategyService";
-import ModelAccuracyDashboard from "@/components/Models/ModelAccuracyDashboard";
+import { ModelAccuracyDashboard } from "@/components/Models";
 
 const ModelAccuracy = () => {
   const [selectedModel, setSelectedModel] = useState<string>(availableAIModels[0].id);
