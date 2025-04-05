@@ -31,27 +31,29 @@ export const trainModel = async (modelId: string): Promise<{ success: boolean; m
     // Use circuit breaker if feature is enabled
     if (featureFlags.isEnabled('CIRCUIT_BREAKER')) {
       const circuitBreaker = getCircuitBreaker('model-training');
-      const result = await circuitBreaker.execute(() => mockTrainModel(modelId));
-      
-      if (result.success) {
-        logger.info(`Model ${modelId} training initiated successfully`);
-        notificationManager.send(
-          NotificationType.MODEL_ALERT,
-          NotificationPriority.MEDIUM,
-          "Model Training Started",
-          `Training initiated for model ${modelId}`
-        );
-      } else {
-        logger.warn(`Model ${modelId} training failed: ${result.message}`);
-        notificationManager.send(
-          NotificationType.MODEL_ALERT,
-          NotificationPriority.HIGH,
-          "Model Training Failed",
-          result.message
-        );
-      }
-      
-      return result;
+      return await circuitBreaker.execute(async () => {
+        const result = await mockTrainModel(modelId);
+        
+        if (result.success) {
+          logger.info(`Model ${modelId} training initiated successfully`);
+          notificationManager.send(
+            NotificationType.MODEL_ALERT,
+            NotificationPriority.MEDIUM,
+            "Model Training Started",
+            `Training initiated for model ${modelId}`
+          );
+        } else {
+          logger.warn(`Model ${modelId} training failed: ${result.message}`);
+          notificationManager.send(
+            NotificationType.MODEL_ALERT,
+            NotificationPriority.HIGH,
+            "Model Training Failed",
+            result.message
+          );
+        }
+        
+        return result;
+      });
     } else {
       const result = await withRetry(() => mockTrainModel(modelId));
       

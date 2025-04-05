@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
 import MainLayout from "./components/Layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Models from "./pages/Models";
@@ -25,28 +26,30 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/models" element={<Models />} />
-              <Route path="/models/:modelId" element={<ModelDetail />} />
-              <Route path="/logs" element={<Logs />} />
-              <Route path="/forecast" element={<Forecast />} />
-              <Route path="/feature-flags" element={<FeatureFlags />} />
-              <Route path="/ai-model-comparison" element={<AIModelComparison />} />
-              <Route path="/strategy-library" element={<StrategyLibrary />} />
-              <Route path="/model-accuracy" element={<ModelAccuracy />} />
-              <Route path="/model-benchmark" element={<ModelBenchmark />} />
-              <Route path="/chatbot" element={<Chatbot />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-          <Toaster position="top-right" />
-        </Router>
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+        <TooltipProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/models" element={<Models />} />
+                <Route path="/models/:modelId" element={<ModelDetail />} />
+                <Route path="/logs" element={<Logs />} />
+                <Route path="/forecast" element={<Forecast />} />
+                <Route path="/feature-flags" element={<FeatureFlags />} />
+                <Route path="/ai-model-comparison" element={<AIModelComparison />} />
+                <Route path="/strategy-library" element={<StrategyLibrary />} />
+                <Route path="/model-accuracy" element={<ModelAccuracy />} />
+                <Route path="/model-benchmark" element={<ModelBenchmark />} />
+                <Route path="/chatbot" element={<Chatbot />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+            <Toaster position="top-right" />
+          </Router>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

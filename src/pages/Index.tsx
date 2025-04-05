@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Brain, BarChart3, TrendingUp, ChevronRight } from 'lucide-react';
+import { Brain, BarChart3, TrendingUp, ChevronRight, ArrowRight } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -18,7 +18,7 @@ const Index = () => {
           Advanced machine learning algorithms for market prediction and automated trading strategies
         </p>
         
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
           <Button asChild size="lg" className="gap-2">
             <Link to="/dashboard">
               <BarChart3 className="h-5 w-5" />
@@ -31,6 +31,21 @@ const Index = () => {
               AI Models
             </Link>
           </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+          <div className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <h3 className="font-medium mb-2">Predictive Analysis</h3>
+            <p className="text-sm text-muted-foreground">Advanced market forecasting with ML algorithms</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <h3 className="font-medium mb-2">Strategy Optimization</h3>
+            <p className="text-sm text-muted-foreground">Auto-tuning of trade parameters for optimal returns</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <h3 className="font-medium mb-2">Risk Management</h3>
+            <p className="text-sm text-muted-foreground">Intelligent stop-loss and position sizing</p>
+          </div>
         </div>
         
         <div className="mt-12 text-muted-foreground">
