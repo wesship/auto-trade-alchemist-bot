@@ -15,6 +15,7 @@ import AIModelComparison from "./pages/AIModelComparison";
 import StrategyLibrary from "./pages/StrategyLibrary";
 import ModelAccuracy from "./pages/ModelAccuracy";
 import ModelBenchmark from "./pages/ModelBenchmark";
+import Chatbot from "./pages/Chatbot";
 import "./App.css";
 
 // Create a client
@@ -37,6 +38,7 @@ function App() {
             <Route path="/strategy-library" element={<StrategyLibrary />} />
             <Route path="/model-accuracy" element={<ModelAccuracy />} />
             <Route path="/model-benchmark" element={<ModelBenchmark />} />
+            <Route path="/chatbot" element={<Chatbot />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
