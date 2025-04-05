@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -46,20 +46,48 @@ const testimonials = [
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Make sure the component is mounted before rendering theme-dependent elements
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Hero Section */}
+      {/* Hero Section with enhanced animations */}
       <div className="flex flex-col items-center justify-center bg-background p-4 md:p-8 lg:p-12 relative overflow-hidden">
-        {/* Theme Toggle */}
-        <div className="absolute top-4 right-4">
+        {/* Background gradient effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background z-0"></div>
+        
+        {/* Floating elements animation */}
+        <div className="absolute inset-0 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div 
+              key={i}
+              className="absolute rounded-full bg-primary/10"
+              style={{
+                width: `${Math.random() * 10 + 5}rem`,
+                height: `${Math.random() * 10 + 5}rem`,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `float ${Math.random() * 10 + 10}s infinite ease-in-out`,
+                opacity: 0.1 + Math.random() * 0.1,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Theme Toggle with improved button */}
+        <div className="absolute top-4 right-4 z-10">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="icon" 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label="Toggle theme"
+            className="transition-all duration-300 hover:scale-110"
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+            {mounted && theme === 'dark' ? <Sun className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
           </Button>
         </div>
 
@@ -69,21 +97,21 @@ const Index = () => {
               <TrendingUp className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-fade-in">
             AI Trading Algorithmic Platform
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl text-muted-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Advanced machine learning algorithms for market prediction and automated trading strategies
           </p>
           
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            <Button asChild size="lg" className="gap-2 transition-transform hover:scale-105">
+          <div className="flex flex-wrap justify-center gap-4 mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <Button asChild size="lg" className="gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg">
               <Link to="/dashboard">
                 <BarChart3 className="h-5 w-5" />
                 Dashboard
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2 transition-transform hover:scale-105">
+            <Button asChild size="lg" variant="outline" className="gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg">
               <Link to="/models">
                 <Brain className="h-5 w-5" />
                 AI Models
@@ -93,14 +121,14 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Feature Cards */}
+      {/* Feature Cards with improved hover effects */}
       <div className="px-4 md:px-8 lg:px-12 py-12 bg-accent/5">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Powered by Advanced AI</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px]">
+                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px] hover:bg-primary/5">
                   <CardContent className="p-0">
                     <h3 className="font-medium mb-2 flex items-center gap-2">
                       <TrendingUp className="h-4 w-4 text-primary" />
@@ -122,7 +150,7 @@ const Index = () => {
 
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px]">
+                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px] hover:bg-primary/5">
                   <CardContent className="p-0">
                     <h3 className="font-medium mb-2 flex items-center gap-2">
                       <BarChart3 className="h-4 w-4 text-primary" />
@@ -144,7 +172,7 @@ const Index = () => {
 
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px]">
+                <Card className="p-5 rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-5px] hover:bg-primary/5">
                   <CardContent className="p-0">
                     <h3 className="font-medium mb-2 flex items-center gap-2">
                       <Brain className="h-4 w-4 text-primary" />
@@ -167,7 +195,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section with improved styling */}
       <div className="px-4 md:px-8 lg:px-12 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">What Our Users Say</h2>
@@ -177,13 +205,13 @@ const Index = () => {
               <CarouselContent>
                 {testimonials.map((testimonial, index) => (
                   <CarouselItem key={index}>
-                    <div className="bg-card p-6 rounded-lg border text-center">
+                    <div className="bg-card p-6 rounded-lg border text-center transition-all duration-300 hover:shadow-md">
                       <div className="flex justify-center mb-4">
                         <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                           {testimonial.avatar}
                         </div>
                       </div>
-                      <p className="mb-4 italic text-card-foreground">"{testimonial.content}"</p>
+                      <p className="mb-4 italic text-card-foreground">{testimonial.content}</p>
                       <h4 className="font-medium">{testimonial.name}</h4>
                       <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     </div>
@@ -197,7 +225,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Newsletter Section */}
+      {/* Enhanced Newsletter Section */}
       <div className="px-4 md:px-8 lg:px-12 py-12 bg-accent/5">
         <div className="max-w-md mx-auto text-center">
           <h2 className="text-xl md:text-2xl font-bold mb-4">Stay Updated</h2>
@@ -205,9 +233,9 @@ const Index = () => {
           
           <div className="flex gap-2">
             <div className="flex-1">
-              <Input type="email" placeholder="Enter your email" className="w-full" />
+              <Input type="email" placeholder="Enter your email" className="w-full transition-all duration-300 focus:border-primary" />
             </div>
-            <Button className="gap-2">
+            <Button className="gap-2 transition-all duration-300 hover:scale-105">
               <Mail className="h-4 w-4" />
               Subscribe
             </Button>
