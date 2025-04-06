@@ -11,6 +11,8 @@ export * from './types';
 export * from './preferences';
 export * from './storage';
 export * from './sender';
+export * from './categories';
+export * from './webhookHandler';
 
 // Create a default export with all notification utilities
 import { NotificationType, NotificationPriority } from './types';
@@ -27,18 +29,44 @@ import {
   clearAllNotifications 
 } from './storage';
 import { sendNotification } from './sender';
+import {
+  getNotificationCategories,
+  addNotificationCategory,
+  updateNotificationCategory,
+  deleteNotificationCategory
+} from './categories';
+import {
+  processWebhookNotification,
+  createWebhookSubscription
+} from './webhookHandler';
 
 // Default export with all notification utilities
 export default {
+  // Preferences
   getPreferences: getNotificationPreferences,
   updatePreference: updateNotificationPreference,
   resetPreferences: resetNotificationPreferences,
+  
+  // Notifications management
   getNotifications,
   markAsRead: markNotificationAsRead,
   markAllAsRead: markAllNotificationsAsRead,
   deleteNotification,
   clearAll: clearAllNotifications,
   send: sendNotification,
+  
+  // Categories
+  getCategories: getNotificationCategories,
+  addCategory: addNotificationCategory,
+  updateCategory: updateNotificationCategory,
+  deleteCategory: deleteNotificationCategory,
+  
+  // Webhooks
+  processWebhook: processWebhookNotification,
+  createWebhookSubscription,
+  
+  // Constants
   NotificationType,
   NotificationPriority
 };
+
