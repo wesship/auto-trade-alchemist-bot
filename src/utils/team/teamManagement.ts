@@ -11,7 +11,9 @@ import {
   TeamMemberRole, 
   TeamMemberStatus, 
   DEFAULT_ROLE_PERMISSIONS, 
-  TEAM_MEMBERS_KEY 
+  TEAM_MEMBERS_KEY,
+  MemberType,
+  AI_AGENT_PERMISSIONS
 } from './types';
 import logger from '@/utils/logger';
 import { sendNotification } from '@/utils/notifications/sender';
@@ -28,7 +30,8 @@ const initialTeamMembers: TeamMember[] = [
     avatar: 'https://i.pravatar.cc/150?u=jane',
     joinedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
     lastActive: new Date().toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.OWNER]
+    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.OWNER],
+    type: MemberType.HUMAN
   },
   {
     id: '2',
@@ -39,7 +42,8 @@ const initialTeamMembers: TeamMember[] = [
     avatar: 'https://i.pravatar.cc/150?u=john',
     joinedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
     lastActive: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.ADMIN]
+    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.ADMIN],
+    type: MemberType.HUMAN
   },
   {
     id: '3',
@@ -50,7 +54,8 @@ const initialTeamMembers: TeamMember[] = [
     avatar: 'https://i.pravatar.cc/150?u=mark',
     joinedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
     lastActive: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.TRADER]
+    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.TRADER],
+    type: MemberType.HUMAN
   },
   {
     id: '4',
@@ -61,7 +66,8 @@ const initialTeamMembers: TeamMember[] = [
     avatar: 'https://i.pravatar.cc/150?u=sarah',
     joinedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     lastActive: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.ANALYST]
+    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.ANALYST],
+    type: MemberType.HUMAN
   },
   {
     id: '5',
@@ -70,7 +76,37 @@ const initialTeamMembers: TeamMember[] = [
     role: TeamMemberRole.VIEWER,
     status: TeamMemberStatus.INVITED,
     joinedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.VIEWER]
+    permissions: DEFAULT_ROLE_PERMISSIONS[TeamMemberRole.VIEWER],
+    type: MemberType.HUMAN
+  },
+  // Adding some initial AI agents
+  {
+    id: '101',
+    name: 'MarketSense AI',
+    email: 'marketsense@ai-agent.trading',
+    role: TeamMemberRole.AI_AGENT,
+    status: TeamMemberStatus.ACTIVE,
+    joinedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    permissions: AI_AGENT_PERMISSIONS['MARKET_ANALYZER'],
+    type: MemberType.AI,
+    aiModel: 'gpt-4',
+    specialties: ['Market Analysis', 'Sentiment Analysis', 'Trend Identification'],
+    description: 'Analyzes market trends and sentiment to provide trading insights'
+  },
+  {
+    id: '102',
+    name: 'TradeBot Alpha',
+    email: 'tradebot@ai-agent.trading',
+    role: TeamMemberRole.AI_AGENT,
+    status: TeamMemberStatus.ACTIVE,
+    joinedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    lastActive: new Date().toISOString(),
+    permissions: AI_AGENT_PERMISSIONS['TRADE_EXECUTOR'],
+    type: MemberType.AI,
+    aiModel: 'claude-3',
+    specialties: ['Trade Execution', 'Risk Assessment'],
+    description: 'Executes trades based on predefined strategies with risk management'
   }
 ];
 
@@ -81,6 +117,17 @@ try {
   const storedMembers = localStorage.getItem(TEAM_MEMBERS_KEY);
   if (storedMembers) {
     teamMembers = JSON.parse(storedMembers);
+    
+    // Update any existing members without type field
+    teamMembers = teamMembers.map(member => {
+      if (!member.type) {
+        return {
+          ...member,
+          type: MemberType.HUMAN
+        };
+      }
+      return member;
+    });
   } else {
     teamMembers = [...initialTeamMembers];
     localStorage.setItem(TEAM_MEMBERS_KEY, JSON.stringify(teamMembers));
@@ -119,24 +166,31 @@ export const getTeamMemberById = (id: string): TeamMember | undefined => {
  * Add a new team member
  */
 export const addTeamMember = (
-  newMember: Omit<TeamMember, 'id' | 'joinedAt' | 'permissions'>
+  newMember: Omit<TeamMember, 'id' | 'joinedAt'> & Partial<Pick<TeamMember, 'permissions'>>
 ): TeamMember => {
+  const isAI = newMember.type === MemberType.AI;
+  
   const member: TeamMember = {
     id: uuidv4(),
     joinedAt: new Date().toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[newMember.role],
+    permissions: newMember.permissions || DEFAULT_ROLE_PERMISSIONS[newMember.role],
     ...newMember
   };
   
   teamMembers.push(member);
   saveTeamMembers();
   
-  // Send notification about new team member
+  // Send notification about new team member or AI agent
+  const notificationTitle = isAI ? 'New AI Agent Added' : 'New Team Member Added';
+  const notificationMessage = isAI 
+    ? `${member.name} (AI Agent) has been added to the team.`
+    : `${member.name} (${member.role}) has been added to the team.`;
+  
   sendNotification(
     NotificationType.SYSTEM_ALERT,
     NotificationPriority.MEDIUM,
-    'New Team Member Added',
-    `${member.name} (${member.role}) has been added to the team.`
+    notificationTitle,
+    notificationMessage
   );
   
   return member;
@@ -196,10 +250,13 @@ export const removeTeamMember = (id: string): boolean => {
   saveTeamMembers();
   
   // Send notification about team member removal
+  const isAI = deletedMember.type === MemberType.AI;
+  const notificationTitle = isAI ? 'AI Agent Removed' : 'Team Member Removed';
+  
   sendNotification(
     NotificationType.SYSTEM_ALERT,
     NotificationPriority.MEDIUM,
-    'Team Member Removed',
+    notificationTitle,
     `${deletedMember.name} has been removed from the team.`
   );
   
@@ -222,7 +279,8 @@ export const inviteTeamMember = (
     role,
     status: TeamMemberStatus.INVITED,
     joinedAt: new Date().toISOString(),
-    permissions: DEFAULT_ROLE_PERMISSIONS[role]
+    permissions: DEFAULT_ROLE_PERMISSIONS[role],
+    type: MemberType.HUMAN
   };
   
   teamMembers.push(member);
@@ -266,6 +324,30 @@ export const resendInvitation = (id: string): boolean => {
 };
 
 /**
+ * Toggle AI agent active/inactive state
+ */
+export const toggleAIAgentActive = (id: string): boolean => {
+  const agent = teamMembers.find(member => member.id === id && member.type === MemberType.AI);
+  
+  if (!agent) {
+    return false;
+  }
+  
+  // In a real app, this would start/stop the AI agent's processes
+  // For demo purposes, we'll just log it
+  logger.info(`Toggled AI agent ${agent.name} active state`);
+  
+  sendNotification(
+    NotificationType.SYSTEM_ALERT,
+    NotificationPriority.LOW,
+    'AI Agent Status Changed',
+    `${agent.name} status has been updated.`
+  );
+  
+  return true;
+};
+
+/**
  * Check if a user has a specific permission
  */
 export const hasPermission = (
@@ -275,7 +357,7 @@ export const hasPermission = (
 ): boolean => {
   const member = teamMembers.find(member => member.id === userId);
   
-  if (!member || member.status !== TeamMemberStatus.ACTIVE) {
+  if (!member || (member.type === MemberType.HUMAN && member.status !== TeamMemberStatus.ACTIVE)) {
     return false;
   }
   
@@ -294,5 +376,6 @@ export default {
   removeTeamMember,
   inviteTeamMember,
   resendInvitation,
+  toggleAIAgentActive,
   hasPermission
 };

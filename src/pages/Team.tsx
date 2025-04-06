@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { PlusCircle, RefreshCw, Users } from 'lucide-react';
+import { PlusCircle, RefreshCw, Users, Bot, UserPlus, BrainCircuit } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -28,11 +28,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import TeamMemberRow from '@/components/Team/TeamMemberRow';
 import TeamMemberForm, { TeamMemberFormValues } from '@/components/Team/TeamMemberForm';
+import AIAgentRow from '@/components/Team/AIAgentRow';
+import AIAgentForm, { AIAgentFormValues } from '@/components/Team/AIAgentForm';
 import {
   TeamMember,
   TeamMemberStatus,
+  TeamMemberRole,
+  MemberType,
+  AI_AGENT_PERMISSIONS
 } from '@/utils/team/types';
 import {
   getTeamMembers,
@@ -48,6 +59,14 @@ const TeamPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
+  const [isAIAgentFormOpen, setIsAIAgentFormOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("humans");
+
+  // Get human team members
+  const humanMembers = teamMembers.filter(member => member.type === MemberType.HUMAN || !member.type);
+  
+  // Get AI team members
+  const aiMembers = teamMembers.filter(member => member.type === MemberType.AI);
 
   // Refresh team members list
   const refreshTeamMembers = () => {
@@ -62,11 +81,28 @@ const TeamPage: React.FC = () => {
     setIsFormOpen(true);
   };
 
+  // Open add AI agent form
+  const handleAddAIAgent = () => {
+    setIsAIAgentFormOpen(true);
+  };
+
   // Open edit member form
   const handleEditMember = (member: TeamMember) => {
     setSelectedMember(member);
     setIsEditMode(true);
     setIsFormOpen(true);
+  };
+
+  // Open edit AI agent form
+  const handleEditAIAgent = (agent: TeamMember) => {
+    // For now, we'll just show a toast since we haven't implemented editing
+    toast.info(`Edit functionality for ${agent.name} coming soon`);
+  };
+
+  // Toggle AI agent active state
+  const handleToggleAIAgentActive = (agent: TeamMember) => {
+    // For demo purposes, we'll just show a toast
+    toast.success(`${agent.name} status toggled`);
   };
 
   // Show delete confirmation
@@ -114,6 +150,7 @@ const TeamPage: React.FC = () => {
           email: data.email,
           role: data.role,
           status: TeamMemberStatus.INVITED,
+          type: MemberType.HUMAN
         });
         toast.success(`${data.name} has been added to the team`);
         refreshTeamMembers();
@@ -125,6 +162,35 @@ const TeamPage: React.FC = () => {
     setIsFormOpen(false);
   };
 
+  // Handle AI agent form submission
+  const handleAIAgentFormSubmit = (data: AIAgentFormValues) => {
+    try {
+      // Generate an email for the AI agent based on its name
+      const email = `${data.name.toLowerCase().replace(/\s+/g, '.')}@ai-agent.trading`;
+      
+      // Add the AI agent to the team
+      const newAgent = addTeamMember({
+        name: data.name,
+        email: email,
+        role: TeamMemberRole.AI_AGENT,
+        status: TeamMemberStatus.ACTIVE,
+        type: MemberType.AI,
+        aiModel: data.aiModel,
+        specialties: data.specialties,
+        description: data.description,
+        // Use permissions based on the agent type
+        permissions: AI_AGENT_PERMISSIONS[data.agentType]
+      });
+      
+      toast.success(`${data.name} AI agent has been added to the team`);
+      refreshTeamMembers();
+      setActiveTab("ai"); // Switch to AI tab after adding
+    } catch (error) {
+      toast.error('Failed to add AI agent');
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col space-y-6">
@@ -132,7 +198,7 @@ const TeamPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
             <p className="text-muted-foreground mt-1">
-              Manage your trading team members and their permissions
+              Manage your trading team members and AI agents
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -145,48 +211,113 @@ const TeamPage: React.FC = () => {
               <RefreshCw className="h-4 w-4" />
               Refresh
             </Button>
-            <Button onClick={handleAddMember} className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Add Member
-            </Button>
           </div>
         </div>
 
-        {teamMembers.length === 0 ? (
-          <Alert>
-            <Users className="h-4 w-4" />
-            <AlertTitle>No team members</AlertTitle>
-            <AlertDescription>
-              You haven't added any team members yet. Click the "Add Member"
-              button to get started.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <Table>
-            <TableCaption>A list of your team members</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teamMembers.map((member) => (
-                <TeamMemberRow
-                  key={member.id}
-                  member={member}
-                  onEdit={handleEditMember}
-                  onDelete={handleDeleteMember}
-                  onResendInvite={handleResendInvite}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        )}
+        <Tabs defaultValue="humans" value={activeTab} onValueChange={setActiveTab}>
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="humans" className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                Human Team
+              </TabsTrigger>
+              <TabsTrigger value="ai" className="flex items-center gap-1">
+                <Bot className="h-4 w-4" />
+                AI Agents
+              </TabsTrigger>
+            </TabsList>
+            
+            <div>
+              {activeTab === "humans" ? (
+                <Button onClick={handleAddMember} className="gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Add Team Member
+                </Button>
+              ) : (
+                <Button onClick={handleAddAIAgent} className="gap-2">
+                  <BrainCircuit className="h-4 w-4" />
+                  Add AI Agent
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          <TabsContent value="humans" className="mt-0">
+            {humanMembers.length === 0 ? (
+              <Alert>
+                <Users className="h-4 w-4" />
+                <AlertTitle>No team members</AlertTitle>
+                <AlertDescription>
+                  You haven't added any human team members yet. Click the "Add Team Member"
+                  button to get started.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Table>
+                <TableCaption>A list of your human team members</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Member</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead>Last Active</TableHead>
+                    <TableHead className="w-[70px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {humanMembers.map((member) => (
+                    <TeamMemberRow
+                      key={member.id}
+                      member={member}
+                      onEdit={handleEditMember}
+                      onDelete={handleDeleteMember}
+                      onResendInvite={handleResendInvite}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="ai" className="mt-0">
+            {aiMembers.length === 0 ? (
+              <Alert>
+                <Bot className="h-4 w-4" />
+                <AlertTitle>No AI agents</AlertTitle>
+                <AlertDescription>
+                  You haven't added any AI agents yet. Click the "Add AI Agent"
+                  button to get started.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Table>
+                <TableCaption>A list of your AI trading agents</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Agent</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Last Active</TableHead>
+                    <TableHead className="w-[70px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {aiMembers.map((agent) => (
+                    <AIAgentRow
+                      key={agent.id}
+                      agent={agent}
+                      onEdit={handleEditAIAgent}
+                      onDelete={handleDeleteMember}
+                      onToggleActive={handleToggleAIAgentActive}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Add/Edit Team Member Form */}
@@ -196,6 +327,13 @@ const TeamPage: React.FC = () => {
         onSubmit={handleFormSubmit}
         member={selectedMember}
         isEdit={isEditMode}
+      />
+
+      {/* Add AI Agent Form */}
+      <AIAgentForm
+        open={isAIAgentFormOpen}
+        onOpenChange={setIsAIAgentFormOpen}
+        onSubmit={handleAIAgentFormSubmit}
       />
 
       {/* Delete Confirmation Dialog */}

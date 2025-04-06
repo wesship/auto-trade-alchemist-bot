@@ -9,7 +9,8 @@ import {
   TeamMember, 
   TeamMemberRole, 
   TeamAction, 
-  TeamResource 
+  TeamResource,
+  MemberType
 } from './types';
 import { getTeamMemberById } from './teamManagement';
 
@@ -72,10 +73,30 @@ export const isAdminOrOwner = (): boolean => {
   );
 };
 
+/**
+ * Check if a team member is an AI agent
+ */
+export const isAiAgent = (member: TeamMember): boolean => {
+  return member.type === MemberType.AI;
+};
+
+/**
+ * Check if the current user can manage AI agents
+ */
+export const canManageAiAgents = (): boolean => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) return false;
+  
+  // Only owners and admins can manage AI agents
+  return isAdminOrOwner();
+};
+
 export default {
   setCurrentUser,
   getCurrentUser,
   hasPermission,
   hasRole,
-  isAdminOrOwner
+  isAdminOrOwner,
+  isAiAgent,
+  canManageAiAgents
 };
