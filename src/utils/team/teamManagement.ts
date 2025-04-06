@@ -13,9 +13,10 @@ import {
   getTeamMemberById,
   addTeamMember,
   updateTeamMember,
-  removeTeamMember,
-  hasPermission as memberHasPermission
+  removeTeamMember
 } from './teamMembers';
+
+import { hasPermission as teamPermissionHasPermission } from './teamPermissions';
 import { inviteTeamMember, resendInvitation } from './invitations';
 import { toggleAIAgentActive } from './aiAgents';
 
@@ -32,7 +33,7 @@ export {
 };
 
 // For functions with the same names in different modules, create aliased exports
-export const hasPermission = memberHasPermission;
+export const hasPermission = teamPermissionHasPermission;
 
 // Export a default object for compatibility with default imports
 export default {
@@ -44,5 +45,5 @@ export default {
   inviteTeamMember,
   resendInvitation,
   toggleAIAgentActive,
-  hasPermission: memberHasPermission
+  hasPermission: teamPermissionHasPermission
 };
