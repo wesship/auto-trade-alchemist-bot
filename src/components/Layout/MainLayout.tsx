@@ -26,6 +26,7 @@ import {
   BookmarkCheck,
   Code,
   MessageSquare,
+  Users,
 } from "lucide-react";
 
 const navigation = [
@@ -35,6 +36,7 @@ const navigation = [
   { name: "AI Comparison", href: "/ai-model-comparison", icon: ChartBar },
   { name: "Strategy Library", href: "/strategy-library", icon: BookmarkCheck },
   { name: "AI Chatbot", href: "/chatbot", icon: MessageSquare },
+  { name: "Team", href: "/team", icon: Users }, // Add Team navigation item
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Feature Flags", href: "/feature-flags", icon: Flag },
 ];
