@@ -91,6 +91,14 @@ export const canManageAiAgents = (): boolean => {
   return isAdminOrOwner();
 };
 
+/**
+ * Generate default permissions based on agent type
+ * @param agentType Type of the AI agent
+ */
+export const getAIAgentPermissions = (agentType: string) => {
+  return {};
+};
+
 export default {
   setCurrentUser,
   getCurrentUser,
@@ -98,5 +106,6 @@ export default {
   hasRole,
   isAdminOrOwner,
   isAiAgent,
-  canManageAiAgents
+  canManageAiAgents,
+  getAIAgentPermissions
 };
