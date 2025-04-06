@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TeamTabs } from '@/components/Team/TeamTabs';
-import { getTeamMembers } from '@/utils/team/teamManagement';
+import { getTeamMembers } from '@/utils/team/teamMembers';
 import { TeamMember } from '@/utils/team/types';
 
 const TeamPage: React.FC = () => {
