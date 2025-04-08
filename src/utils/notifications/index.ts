@@ -12,7 +12,7 @@ export * from './preferences';
 export * from './storage';
 export * from './sender';
 export * from './categories';
-export * from './webhookHandler';
+export * from './webhook';
 
 // Create a default export with all notification utilities
 import { NotificationType, NotificationPriority } from './types';
@@ -38,7 +38,7 @@ import {
 import {
   processWebhookNotification,
   createWebhookSubscription
-} from './webhookHandler';
+} from './webhook';
 
 // Default export with all notification utilities
 export default {
@@ -69,4 +69,3 @@ export default {
   NotificationType,
   NotificationPriority
 };
-
