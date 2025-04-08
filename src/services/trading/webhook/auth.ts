@@ -5,7 +5,7 @@
  */
 
 import logger from '@/utils/logger';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import { WebhookSecret, WebhookErrorResponse } from './types';
 
 // Webhook secrets for external access - in production, use an environment variable or secret manager

@@ -1,7 +1,7 @@
 
 import { marketAssets } from '../mockData';
 import logger from '@/utils/logger';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import { withRetry } from './utils';
 
 /**

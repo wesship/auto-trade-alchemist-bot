@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getTradeLogs } from '@/services/tradingService';
-import { getSecurityEvents } from '@/utils/securityUtils';
+import { getSecurityEvents } from '@/utils/security';
 import { getLogs, LogLevel } from '@/utils/logger';
 
 export const useLogs = () => {

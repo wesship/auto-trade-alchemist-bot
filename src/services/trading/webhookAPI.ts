@@ -1,4 +1,3 @@
-
 /**
  * Webhook API Service
  * 
@@ -7,7 +6,7 @@
  */
 
 import logger from '@/utils/logger';
-import { processTradingViewWebhook, getWebhookSecretToken } from '@/utils/notifications/webhookHandler';
+import { processTradingViewWebhook, getWebhookSecretToken } from '@/utils/notifications/webhook';
 import { handleTradeWebhook } from './webhookService';
 
 // A simulated server-side function to process webhook requests
@@ -168,4 +167,3 @@ Include your secret token as a query parameter:
 }
 \`\`\`
 `;
-};

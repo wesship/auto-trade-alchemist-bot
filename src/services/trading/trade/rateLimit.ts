@@ -1,6 +1,6 @@
 
 import logger from '@/utils/logger';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 
 // Maximum trades per symbol per minute
 const MAX_TRADES_PER_MINUTE = 5;

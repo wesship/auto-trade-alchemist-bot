@@ -1,7 +1,8 @@
+
 import { TradeSignal } from '../../types/trading';
 import { getTradeSignals as mockGetTradeSignals } from '../mockData';
 import logger from '@/utils/logger';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import { getCircuitBreaker } from '@/utils/circuitBreaker';
 import featureFlags from '@/utils/featureFlags';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';

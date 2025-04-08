@@ -7,7 +7,7 @@ import { generateStrategy, compareAIModels } from './aiStrategy/generation';
 import { availableAIModels } from './aiStrategy/models';
 import { strategyPrompts } from './aiStrategy/prompts';
 import logger from '@/utils/logger';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';
 
 // API keys for external access - in production, use an environment variable or secret manager
