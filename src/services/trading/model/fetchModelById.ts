@@ -3,7 +3,7 @@ import { AITradingModel } from '../../../types/trading';
 import { aiTradingModels } from '../../mockData';
 import logger from '@/utils/logger';
 import { withRetry } from '../utils';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';
 import { toast } from 'sonner';
 import { generateModelHealth } from './modelHealth';

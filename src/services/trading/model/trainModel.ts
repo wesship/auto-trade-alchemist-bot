@@ -2,7 +2,7 @@
 import { trainModel as mockTrainModel } from '../../mockData';
 import logger from '@/utils/logger';
 import { withRetry } from '../utils';
-import securityUtils from '@/utils/securityUtils';
+import securityUtils from '@/utils/security';
 import notificationManager, { NotificationType, NotificationPriority } from '@/utils/notificationManager';
 import { getCircuitBreaker } from '@/utils/circuitBreaker';
 import featureFlags from '@/utils/featureFlags';
