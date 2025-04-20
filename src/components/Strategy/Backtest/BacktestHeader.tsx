@@ -29,6 +29,14 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
   isRunning,
   handleRunBacktest,
 }) => {
+  // Add a console log to verify props
+  console.log("BacktestHeader props:", { 
+    selectedTimeframe, 
+    showStrategyParams, 
+    isRunning, 
+    handleRunBacktest 
+  });
+
   return (
     <div className="flex justify-between items-center">
       <h2 className="text-2xl font-bold">Backtest Results</h2>
@@ -63,7 +71,10 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
         <Button
           variant="default"
           size="sm"
-          onClick={handleRunBacktest}
+          onClick={() => {
+            console.log("Run Backtest button clicked");
+            handleRunBacktest();
+          }}
           disabled={isRunning}
         >
           {isRunning ? (

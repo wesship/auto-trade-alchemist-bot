@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -61,14 +62,6 @@ const backtestData = {
   ],
 };
 
-const timeframeOptions = [
-  { label: "1 Month", value: "1M" },
-  { label: "3 Months", value: "3M" },
-  { label: "6 Months", value: "6M" },
-  { label: "1 Year", value: "1Y" },
-  { label: "All Time", value: "ALL" },
-];
-
 const strategyParams = {
   entryCondition: "RSI < 30",
   exitCondition: "RSI > 70",
@@ -86,14 +79,31 @@ const BacktestVisualization = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("ALL");
   const [showStrategyParams, setShowStrategyParams] = useState(false);
   
+  console.log("BacktestVisualization rendered, isRunning:", isRunning);
+  
   const handleRunBacktest = () => {
+    console.log("handleRunBacktest called, setting isRunning to true");
     setIsRunning(true);
-    toast.info("Starting backtest...");
+    
+    // Make sure toast is properly imported and working
+    try {
+      toast.info("Starting backtest...");
+      console.log("Toast info shown");
+    } catch (error) {
+      console.error("Error showing toast:", error);
+    }
     
     // Simulate backtest execution with timeout
     setTimeout(() => {
+      console.log("Backtest timeout completed, setting isRunning to false");
       setIsRunning(false);
-      toast.success("Backtest completed successfully!");
+      
+      try {
+        toast.success("Backtest completed successfully!");
+        console.log("Toast success shown");
+      } catch (error) {
+        console.error("Error showing toast:", error);
+      }
     }, 2500);
   };
 
