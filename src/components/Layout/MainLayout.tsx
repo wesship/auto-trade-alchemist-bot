@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
@@ -27,6 +26,7 @@ import {
   Users,
   Wallet,
   Book,
+  LineChart,
 } from "lucide-react";
 
 const navigation = [
@@ -34,6 +34,7 @@ const navigation = [
   { name: "Models", href: "/models", icon: Brain },
   { name: "Forecast", href: "/forecast", icon: TrendingUp },
   { name: "Portfolio", href: "/portfolio", icon: Wallet },
+  { name: "Backtesting", href: "/backtesting", icon: LineChart },
   { name: "AI Comparison", href: "/ai-model-comparison", icon: ChartBar },
   { name: "Strategy Library", href: "/strategy-library", icon: BookmarkCheck },
   { name: "AI Chatbot", href: "/chatbot", icon: MessageSquare },

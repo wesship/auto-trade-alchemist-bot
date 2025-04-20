@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +19,7 @@ import Chatbot from "./pages/Chatbot";
 import Team from "./pages/Team";
 import Portfolio from "./pages/Portfolio";
 import Onboarding from "./pages/Onboarding";
-import "./App.css";
+import Backtesting from "./pages/Backtesting";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -48,6 +47,7 @@ function App() {
                 <Route path="/chatbot" element={<Chatbot />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/backtesting" element={<Backtesting />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
