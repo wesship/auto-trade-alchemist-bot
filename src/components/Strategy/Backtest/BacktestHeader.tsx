@@ -2,15 +2,13 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Play, RefreshCw, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface BacktestHeaderProps {
   selectedTimeframe: string;
   setSelectedTimeframe: (timeframe: string) => void;
   showStrategyParams: boolean;
   setShowStrategyParams: (show: boolean) => void;
-  isRunning: boolean;
-  handleRunBacktest: () => void;
 }
 
 const timeframeOptions = [
@@ -26,17 +24,7 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
   setSelectedTimeframe,
   showStrategyParams,
   setShowStrategyParams,
-  isRunning,
-  handleRunBacktest,
 }) => {
-  // Add a console log to verify props
-  console.log("BacktestHeader props:", { 
-    selectedTimeframe, 
-    showStrategyParams, 
-    isRunning, 
-    handleRunBacktest 
-  });
-
   return (
     <div className="flex justify-between items-center">
       <h2 className="text-2xl font-bold">Backtest Results</h2>
@@ -66,25 +54,6 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
           onClick={() => setShowStrategyParams(!showStrategyParams)}
         >
           {showStrategyParams ? "Hide Parameters" : "Show Parameters"}
-        </Button>
-        
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleRunBacktest}
-          disabled={isRunning}
-        >
-          {isRunning ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Running...
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4 mr-2" />
-              Run Backtest
-            </>
-          )}
         </Button>
       </div>
     </div>

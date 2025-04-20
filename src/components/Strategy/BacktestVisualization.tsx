@@ -1,7 +1,5 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
 import BacktestHeader from './Backtest/BacktestHeader';
 import StrategyParameters from './Backtest/StrategyParameters';
 import TradesTable from './Backtest/TradesTable';
@@ -75,42 +73,9 @@ const strategyParams = {
 
 const BacktestVisualization = () => {
   const [currentTab, setCurrentTab] = useState('overview');
-  const [isRunning, setIsRunning] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("ALL");
   const [showStrategyParams, setShowStrategyParams] = useState(false);
   
-  console.log("BacktestVisualization rendered, isRunning:", isRunning);
-  
-  const handleRunBacktest = () => {
-    console.log("handleRunBacktest called, setting isRunning to true");
-    setIsRunning(true);
-    
-    // Make sure toast is properly imported and working
-    try {
-      toast("Starting backtest...", {
-        description: "Processing your backtest configuration",
-      });
-      console.log("Toast info shown");
-    } catch (error) {
-      console.error("Error showing toast:", error);
-    }
-    
-    // Simulate backtest execution with timeout
-    setTimeout(() => {
-      console.log("Backtest timeout completed, setting isRunning to false");
-      setIsRunning(false);
-      
-      try {
-        toast("Backtest completed successfully!", {
-          description: "Results are now available",
-        });
-        console.log("Toast success shown");
-      } catch (error) {
-        console.error("Error showing toast:", error);
-      }
-    }, 2500);
-  };
-
   return (
     <div className="space-y-6">
       <BacktestHeader 
@@ -118,8 +83,6 @@ const BacktestVisualization = () => {
         setSelectedTimeframe={setSelectedTimeframe}
         showStrategyParams={showStrategyParams}
         setShowStrategyParams={setShowStrategyParams}
-        isRunning={isRunning}
-        handleRunBacktest={handleRunBacktest}
       />
       
       <StrategyParameters 
