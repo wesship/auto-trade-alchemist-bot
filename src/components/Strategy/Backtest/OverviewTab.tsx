@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { BookmarkCheck, Download, Share } from "lucide-react";
-import { toast } from "sonner";
 import PerformanceSummary from './PerformanceSummary';
 import MonthlyReturnsCard from './MonthlyReturnsCard';
 import { formatCurrency } from './utils';
@@ -26,19 +25,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   equityCurve
 }) => {
   const handleSaveStrategy = () => {
-    toast.success("Strategy saved to library", {
-      description: "You can access it anytime from your Strategy Library",
-    });
+    console.log("Strategy saved");
   };
   
   const handleExportResults = () => {
-    toast.success("Backtest results exported");
+    console.log("Results exported");
   };
   
   const handleShareStrategy = () => {
-    toast.success("Strategy shared", {
-      description: "Link copied to clipboard",
-    });
+    console.log("Strategy shared");
   };
 
   return (

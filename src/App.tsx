@@ -1,7 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import MainLayout from "./components/Layout/MainLayout";
@@ -19,7 +18,7 @@ import ModelAccuracy from "./pages/ModelAccuracy";
 import ModelBenchmark from "./pages/ModelBenchmark";
 import Chatbot from "./pages/Chatbot";
 import Team from "./pages/Team";
-import Portfolio from "./pages/Portfolio"; // Add Portfolio import
+import Portfolio from "./pages/Portfolio";
 import "./App.css";
 
 // Create a client
@@ -46,11 +45,10 @@ function App() {
                 <Route path="/model-benchmark" element={<ModelBenchmark />} />
                 <Route path="/chatbot" element={<Chatbot />} />
                 <Route path="/team" element={<Team />} />
-                <Route path="/portfolio" element={<Portfolio />} /> {/* Add the Portfolio route */}
+                <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-            <Toaster position="top-right" richColors closeButton />
           </Router>
         </TooltipProvider>
       </ThemeProvider>

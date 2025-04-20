@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { formatCurrency } from './utils';
 
 interface Trade {
@@ -26,6 +25,10 @@ interface TradesTableProps {
 }
 
 const TradesTable: React.FC<TradesTableProps> = ({ trades, performance }) => {
+  const handleShowDetails = (tradeId: number) => {
+    console.log(`Details for trade #${tradeId}`);
+  };
+
   return (
     <>
       <Card>
@@ -90,7 +93,7 @@ const TradesTable: React.FC<TradesTableProps> = ({ trades, performance }) => {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => toast.info(`Details for trade #${trade.id}`)}
+                      onClick={() => handleShowDetails(trade.id)}
                     >
                       Details
                     </Button>
