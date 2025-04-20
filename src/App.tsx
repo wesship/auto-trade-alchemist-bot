@@ -50,7 +50,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-            <Toaster position="top-right" theme="dark" />
+            <Toaster position="top-right" richColors closeButton />
           </Router>
         </TooltipProvider>
       </ThemeProvider>

@@ -87,7 +87,9 @@ const BacktestVisualization = () => {
     
     // Make sure toast is properly imported and working
     try {
-      toast.info("Starting backtest...");
+      toast("Starting backtest...", {
+        description: "Processing your backtest configuration",
+      });
       console.log("Toast info shown");
     } catch (error) {
       console.error("Error showing toast:", error);
@@ -99,7 +101,9 @@ const BacktestVisualization = () => {
       setIsRunning(false);
       
       try {
-        toast.success("Backtest completed successfully!");
+        toast("Backtest completed successfully!", {
+          description: "Results are now available",
+        });
         console.log("Toast success shown");
       } catch (error) {
         console.error("Error showing toast:", error);
