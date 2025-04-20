@@ -1,17 +1,14 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Play, BookmarkCheck, Share, ChevronDown } from "lucide-react";
+import { Download, BookmarkCheck, Share } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger, 
-} from "@/components/ui/dropdown-menu";
+import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import BacktestHeader from './Backtest/BacktestHeader';
+import StrategyParameters from './Backtest/StrategyParameters';
+import PerformanceSummary from './Backtest/PerformanceSummary';
+import { formatCurrency } from './Backtest/utils';
 
 // Mock backtesting data
 const backtestData = {
@@ -94,26 +91,11 @@ const BacktestVisualization = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("ALL");
   const [showStrategyParams, setShowStrategyParams] = useState(false);
   
-  // Format currency for display
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
-  
-  // Format percentage for display
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(2)}%`;
-  };
-
   // Handle running the backtest
   const handleRunBacktest = () => {
     setIsRunning(true);
     toast.info("Starting backtest...");
     
-    // Simulate running the backtest
     setTimeout(() => {
       setIsRunning(false);
       toast.success("Backtest completed successfully!");
@@ -141,71 +123,19 @@ const BacktestVisualization = () => {
   
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Backtest Results</h2>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                {selectedTimeframe === "ALL" ? "All Time" : selectedTimeframe}
-                <ChevronDown className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {timeframeOptions.map((option) => (
-                <DropdownMenuItem 
-                  key={option.value}
-                  onClick={() => setSelectedTimeframe(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button variant="outline" size="sm" onClick={() => setShowStrategyParams(!showStrategyParams)}>
-            {showStrategyParams ? "Hide Parameters" : "Show Parameters"}
-          </Button>
-          
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleRunBacktest}
-            disabled={isRunning}
-          >
-            {isRunning ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Run Backtest
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+      <BacktestHeader 
+        selectedTimeframe={selectedTimeframe}
+        setSelectedTimeframe={setSelectedTimeframe}
+        showStrategyParams={showStrategyParams}
+        setShowStrategyParams={setShowStrategyParams}
+        isRunning={isRunning}
+        handleRunBacktest={handleRunBacktest}
+      />
       
-      {showStrategyParams && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Strategy Parameters</CardTitle>
-            <CardDescription>Current backtest configuration</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(strategyParams).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <p className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
-                  <p className="text-sm">{value}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <StrategyParameters 
+        strategyParams={strategyParams}
+        show={showStrategyParams}
+      />
       
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 w-full">
@@ -217,32 +147,7 @@ const BacktestVisualization = () => {
         
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Performance Summary</CardTitle>
-                <CardDescription>Overall backtest performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Net Profit</p>
-                    <p className="text-xl font-bold text-green-500">{formatCurrency(backtestData.performance.netProfit)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Win Rate</p>
-                    <p className="text-xl font-bold">{(backtestData.performance.winRate * 100).toFixed(1)}%</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Profit Factor</p>
-                    <p className="text-xl font-bold">{backtestData.performance.profitFactor.toFixed(2)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Max Drawdown</p>
-                    <p className="text-xl font-bold text-red-500">{backtestData.performance.maxDrawdown.toFixed(2)}%</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <PerformanceSummary performance={backtestData.performance} />
             
             <Card>
               <CardHeader className="pb-2">
