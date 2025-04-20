@@ -3,7 +3,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Play, RefreshCw, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
 
 interface BacktestHeaderProps {
   selectedTimeframe: string;
@@ -64,7 +63,7 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
         <Button
           variant="default"
           size="sm"
-          onClick={handleRunBacktest}
+          onClick={() => handleRunBacktest()}
           disabled={isRunning}
         >
           {isRunning ? (
