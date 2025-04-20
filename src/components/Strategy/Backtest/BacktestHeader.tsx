@@ -63,7 +63,7 @@ const BacktestHeader: React.FC<BacktestHeaderProps> = ({
         <Button
           variant="default"
           size="sm"
-          onClick={() => handleRunBacktest()}
+          onClick={handleRunBacktest}
           disabled={isRunning}
         >
           {isRunning ? (

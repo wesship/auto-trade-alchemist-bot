@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -91,6 +90,7 @@ const BacktestVisualization = () => {
     setIsRunning(true);
     toast.info("Starting backtest...");
     
+    // Simulate backtest execution with timeout
     setTimeout(() => {
       setIsRunning(false);
       toast.success("Backtest completed successfully!");
