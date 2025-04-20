@@ -1,4 +1,4 @@
-import { Bell, Menu, Moon, MessageSquare, Settings, Sun, Wallet } from "lucide-react";
+import { Bell, Menu, Moon, MessageSquare, Settings, Sun, Wallet, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

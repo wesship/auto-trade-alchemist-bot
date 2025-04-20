@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Download, BookmarkCheck, Share, Code } from "lucide-react";
 import { toast } from "sonner";
 import BacktestHeader from './Backtest/BacktestHeader';
 import StrategyParameters from './Backtest/StrategyParameters';
-import PerformanceSummary from './Backtest/PerformanceSummary';
 import TradesTable from './Backtest/TradesTable';
 import EquityAnalysis from './Backtest/EquityAnalysis';
 import MetricsCards from './Backtest/MetricsCards';
-import { formatCurrency } from './Backtest/utils';
+import OverviewTab from './Backtest/OverviewTab';
 
 const backtestData = {
   performance: {
@@ -100,23 +95,7 @@ const BacktestVisualization = () => {
       toast.success("Backtest completed successfully!");
     }, 2500);
   };
-  
-  const handleSaveStrategy = () => {
-    toast.success("Strategy saved to library", {
-      description: "You can access it anytime from your Strategy Library",
-    });
-  };
-  
-  const handleExportResults = () => {
-    toast.success("Backtest results exported");
-  };
-  
-  const handleShareStrategy = () => {
-    toast.success("Strategy shared", {
-      description: "Link copied to clipboard",
-    });
-  };
-  
+
   return (
     <div className="space-y-6">
       <BacktestHeader 
@@ -141,100 +120,29 @@ const BacktestVisualization = () => {
           <TabsTrigger value="metrics">Key Metrics</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <PerformanceSummary performance={backtestData.performance} />
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Monthly Returns</CardTitle>
-                <CardDescription>Return by month</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[180px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={backtestData.monthlyReturns}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `${value}%`} />
-                    <Tooltip formatter={(value) => [`${typeof value === 'number' ? value.toFixed(2) : value}%`, 'Return']} />
-                    <Bar dataKey="return" fill="#4caf50">
-                      {backtestData.monthlyReturns.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={parseFloat(entry.return.toString()) >= 0 ? "#4caf50" : "#ff5252"} 
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Equity Curve</CardTitle>
-              <CardDescription>Account equity over time</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={backtestData.equityCurve}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [formatCurrency(Number(value)), 'Equity']} />
-                  <Line type="monotone" dataKey="equity" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          
-          <div className="flex justify-end gap-2 mt-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSaveStrategy}
-              className="hover:bg-primary/10"
-            >
-              <BookmarkCheck className="h-4 w-4 mr-2" />
-              Save Strategy
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleShareStrategy}
-              className="hover:bg-primary/10"
-            >
-              <Share className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleExportResults}
-              className="hover:bg-primary/10"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Results
-            </Button>
-          </div>
+        <TabsContent value="overview">
+          <OverviewTab 
+            performance={backtestData.performance}
+            monthlyReturns={backtestData.monthlyReturns}
+            equityCurve={backtestData.equityCurve}
+          />
         </TabsContent>
         
-        <TabsContent value="trades" className="space-y-4">
+        <TabsContent value="trades">
           <TradesTable 
             trades={backtestData.trades} 
             performance={backtestData.performance}
           />
         </TabsContent>
         
-        <TabsContent value="equity" className="space-y-4">
+        <TabsContent value="equity">
           <EquityAnalysis 
             equityCurve={backtestData.equityCurve}
             drawdowns={backtestData.drawdowns}
           />
         </TabsContent>
         
-        <TabsContent value="metrics" className="space-y-4">
+        <TabsContent value="metrics">
           <MetricsCards performance={backtestData.performance} />
         </TabsContent>
       </Tabs>
