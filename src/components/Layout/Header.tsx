@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Moon, MessageSquare, Settings, Sun } from "lucide-react";
+import { Bell, Menu, Moon, MessageSquare, Settings, Sun, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -53,6 +53,16 @@ const Header = () => {
                     Models
                   </NavLink>
                   <NavLink
+                    to="/portfolio"
+                    className={({ isActive }) => 
+                      `px-3 py-2 rounded-md text-sm font-medium ${
+                        isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                      }`
+                    }
+                  >
+                    Portfolio
+                  </NavLink>
+                  <NavLink
                     to="/chatbot"
                     className={({ isActive }) => 
                       `px-3 py-2 rounded-md text-sm font-medium ${
@@ -68,13 +78,6 @@ const Header = () => {
                     onClick={(e) => e.preventDefault()}
                   >
                     Backtesting
-                  </NavLink>
-                  <NavLink
-                    to="#"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Portfolio
                   </NavLink>
                 </nav>
               </SheetContent>
@@ -115,6 +118,16 @@ const Header = () => {
                 Models
               </NavLink>
               <NavLink
+                to="/portfolio"
+                className={({ isActive }) => 
+                  `px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive ? "bg-muted/80" : "hover:bg-muted/50"
+                  }`
+                }
+              >
+                Portfolio
+              </NavLink>
+              <NavLink
                 to="/chatbot"
                 className={({ isActive }) => 
                   `px-3 py-2 rounded-md text-sm font-medium ${
@@ -130,13 +143,6 @@ const Header = () => {
                 onClick={(e) => e.preventDefault()}
               >
                 Backtesting
-              </NavLink>
-              <NavLink
-                to="#"
-                className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted/50"
-                onClick={(e) => e.preventDefault()}
-              >
-                Portfolio
               </NavLink>
             </nav>
           )}

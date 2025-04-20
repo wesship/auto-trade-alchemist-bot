@@ -18,7 +18,8 @@ import StrategyLibrary from "./pages/StrategyLibrary";
 import ModelAccuracy from "./pages/ModelAccuracy";
 import ModelBenchmark from "./pages/ModelBenchmark";
 import Chatbot from "./pages/Chatbot";
-import Team from "./pages/Team"; // Add the Team page import
+import Team from "./pages/Team";
+import Portfolio from "./pages/Portfolio"; // Add Portfolio import
 import "./App.css";
 
 // Create a client
@@ -44,7 +45,8 @@ function App() {
                 <Route path="/model-accuracy" element={<ModelAccuracy />} />
                 <Route path="/model-benchmark" element={<ModelBenchmark />} />
                 <Route path="/chatbot" element={<Chatbot />} />
-                <Route path="/team" element={<Team />} /> {/* Add the Team route */}
+                <Route path="/team" element={<Team />} />
+                <Route path="/portfolio" element={<Portfolio />} /> {/* Add the Portfolio route */}
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

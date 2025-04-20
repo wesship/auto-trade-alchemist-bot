@@ -4,7 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, LineChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, RefreshCw, Play, BookmarkCheck, Share, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger, 
+} from "@/components/ui/dropdown-menu";
 
 // Mock backtesting data
 const backtestData = {
@@ -60,8 +67,32 @@ const backtestData = {
   ],
 };
 
+// Timeframe options
+const timeframeOptions = [
+  { label: "1 Month", value: "1M" },
+  { label: "3 Months", value: "3M" },
+  { label: "6 Months", value: "6M" },
+  { label: "1 Year", value: "1Y" },
+  { label: "All Time", value: "ALL" },
+];
+
+// Strategy parameters
+const strategyParams = {
+  entryCondition: "RSI < 30",
+  exitCondition: "RSI > 70",
+  stopLoss: "2%",
+  takeProfit: "4%",
+  timeframe: "1 Hour",
+  lookbackPeriod: "20 days",
+  instrument: "BTC/USD",
+  startingCapital: "$10,000",
+};
+
 const BacktestVisualization = () => {
   const [currentTab, setCurrentTab] = useState('overview');
+  const [isRunning, setIsRunning] = useState(false);
+  const [selectedTimeframe, setSelectedTimeframe] = useState("ALL");
+  const [showStrategyParams, setShowStrategyParams] = useState(false);
   
   // Format currency for display
   const formatCurrency = (value: number) => {
@@ -76,16 +107,105 @@ const BacktestVisualization = () => {
   const formatPercent = (value: number) => {
     return `${value.toFixed(2)}%`;
   };
+
+  // Handle running the backtest
+  const handleRunBacktest = () => {
+    setIsRunning(true);
+    toast.info("Starting backtest...");
+    
+    // Simulate running the backtest
+    setTimeout(() => {
+      setIsRunning(false);
+      toast.success("Backtest completed successfully!");
+    }, 2500);
+  };
+  
+  // Handle saving the strategy
+  const handleSaveStrategy = () => {
+    toast.success("Strategy saved to library", {
+      description: "You can access it anytime from your Strategy Library",
+    });
+  };
+  
+  // Handle exporting the results
+  const handleExportResults = () => {
+    toast.success("Backtest results exported");
+  };
+  
+  // Handle sharing the strategy
+  const handleShareStrategy = () => {
+    toast.success("Strategy shared", {
+      description: "Link copied to clipboard",
+    });
+  };
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Backtest Results</h2>
-        <Button variant="outline" size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Export Results
-        </Button>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                {selectedTimeframe === "ALL" ? "All Time" : selectedTimeframe}
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {timeframeOptions.map((option) => (
+                <DropdownMenuItem 
+                  key={option.value}
+                  onClick={() => setSelectedTimeframe(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Button variant="outline" size="sm" onClick={() => setShowStrategyParams(!showStrategyParams)}>
+            {showStrategyParams ? "Hide Parameters" : "Show Parameters"}
+          </Button>
+          
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleRunBacktest}
+            disabled={isRunning}
+          >
+            {isRunning ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Running...
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Run Backtest
+              </>
+            )}
+          </Button>
+        </div>
       </div>
+      
+      {showStrategyParams && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Strategy Parameters</CardTitle>
+            <CardDescription>Current backtest configuration</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Object.entries(strategyParams).map(([key, value]) => (
+                <div key={key} className="space-y-1">
+                  <p className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
+                  <p className="text-sm">{value}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
         <TabsList className="grid grid-cols-4 w-full">
@@ -167,6 +287,21 @@ const BacktestVisualization = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+          
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" size="sm" onClick={handleSaveStrategy}>
+              <BookmarkCheck className="h-4 w-4 mr-2" />
+              Save Strategy
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleShareStrategy}>
+              <Share className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportResults}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Results
+            </Button>
+          </div>
         </TabsContent>
         
         <TabsContent value="trades" className="space-y-4">
@@ -229,7 +364,13 @@ const BacktestVisualization = () => {
                         {trade.profitPercent.toFixed(2)}%
                       </div>
                       <div className="text-right">
-                        <Button variant="ghost" size="sm">Details</Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => toast.info(`Details for trade #${trade.id}`)}
+                        >
+                          Details
+                        </Button>
                       </div>
                     </div>
                   ))}

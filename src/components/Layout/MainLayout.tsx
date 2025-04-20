@@ -27,16 +27,18 @@ import {
   Code,
   MessageSquare,
   Users,
+  Wallet,
 } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { name: "Models", href: "/models", icon: Brain },
   { name: "Forecast", href: "/forecast", icon: TrendingUp },
+  { name: "Portfolio", href: "/portfolio", icon: Wallet }, // Add Portfolio navigation item
   { name: "AI Comparison", href: "/ai-model-comparison", icon: ChartBar },
   { name: "Strategy Library", href: "/strategy-library", icon: BookmarkCheck },
   { name: "AI Chatbot", href: "/chatbot", icon: MessageSquare },
-  { name: "Team", href: "/team", icon: Users }, // Add Team navigation item
+  { name: "Team", href: "/team", icon: Users },
   { name: "Logs", href: "/logs", icon: FileText },
   { name: "Feature Flags", href: "/feature-flags", icon: Flag },
 ];
