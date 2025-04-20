@@ -1,9 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Brain, TrendingUp, ChartBar, BookmarkCheck, MessageSquare, BarChart3, Flag } from "lucide-react";
+import { Brain, TrendingUp, ChartBar, BookmarkCheck, MessageSquare, BarChart3, Download } from "lucide-react";
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import OnboardingPDF from '@/components/OnboardingPDF';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -15,6 +16,17 @@ const Onboarding = () => {
         <p className="text-lg text-muted-foreground">
           Let's get you started with our powerful AI-driven trading tools
         </p>
+        <PDFDownloadLink 
+          document={<OnboardingPDF />} 
+          fileName="ai-trading-platform-guide.pdf"
+        >
+          {({ loading }) => (
+            <Button variant="outline" disabled={loading}>
+              <Download className="mr-2 h-4 w-4" />
+              {loading ? "Generating PDF..." : "Download PDF Guide"}
+            </Button>
+          )}
+        </PDFDownloadLink>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
