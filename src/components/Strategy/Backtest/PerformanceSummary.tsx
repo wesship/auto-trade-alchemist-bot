@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { formatCurrency, formatPercent } from '../utils';
+import { formatCurrency, formatPercent } from './utils';
 
 interface PerformanceSummaryProps {
   performance: {
