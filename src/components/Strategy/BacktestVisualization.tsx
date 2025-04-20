@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +13,6 @@ import EquityAnalysis from './Backtest/EquityAnalysis';
 import MetricsCards from './Backtest/MetricsCards';
 import { formatCurrency } from './Backtest/utils';
 
-// Mock data imports and type definitions stay the same
 const backtestData = {
   performance: {
     netProfit: 8742.50,
@@ -192,15 +190,30 @@ const BacktestVisualization = () => {
           </Card>
           
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" size="sm" onClick={handleSaveStrategy}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSaveStrategy}
+              className="hover:bg-primary/10"
+            >
               <BookmarkCheck className="h-4 w-4 mr-2" />
               Save Strategy
             </Button>
-            <Button variant="outline" size="sm" onClick={handleShareStrategy}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleShareStrategy}
+              className="hover:bg-primary/10"
+            >
               <Share className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportResults}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExportResults}
+              className="hover:bg-primary/10"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Results
             </Button>

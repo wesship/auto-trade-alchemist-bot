@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,27 @@ const backgroundStyle = {
   backgroundSize: 'cover',
   backgroundPosition: 'center',
 };
+
+const testimonials = [
+  {
+    name: "Richard F.",
+    image: "/lovable-uploads/848586d2-ddcf-44fd-8ebe-fe94e2e8bd4e.png",
+    text: "The bot has significantly improved my trading results. Highly recommend.",
+    role: "Senior Investment Analyst"
+  },
+  {
+    name: "Sarah M.",
+    image: "/lovable-uploads/photo-1581091226825-a6a2a5aee158",
+    text: "I've been impressed with the consistent returns. Great tool!",
+    role: "Portfolio Manager"
+  },
+  {
+    name: "James T.",
+    image: "/lovable-uploads/photo-1488590528505-98d2b5aba04b",
+    text: "A game changer for my investment strategy. Reliable and efficient.",
+    role: "Day Trader"
+  }
+];
 
 const Index = () => {
   const { theme } = useTheme();
@@ -124,34 +144,23 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-emerald-400 mb-8">WHAT MAKES OUR TRADING BOT SMART?</h2>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Richard F.",
-                image: "/placeholder.svg",
-                text: "The bot has significantly improved my trading results. Highly recommend.",
-              },
-              {
-                name: "Sarah M.",
-                image: "/placeholder.svg",
-                text: "I've been impressed with the consistent returns. Great tool!",
-              },
-              {
-                name: "James T.",
-                image: "/placeholder.svg",
-                text: "A game changer for my investment strategy. Reliable and efficient.",
-              }
-            ].map((testimonial, i) => (
+            {testimonials.map((testimonial, i) => (
               <Card key={i} className="bg-black/60 border-emerald-600/30 backdrop-blur-sm h-full">
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
-                      <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={testimonial.image} 
+                        alt={testimonial.name} 
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div>
-                      <p className="text-white">{testimonial.name}</p>
+                      <p className="text-white font-medium">{testimonial.name}</p>
+                      <p className="text-gray-400 text-sm">{testimonial.role}</p>
                     </div>
                   </div>
-                  <p className="text-gray-300 flex-grow">{testimonial.text}</p>
+                  <p className="text-gray-300">{testimonial.text}</p>
                 </CardContent>
               </Card>
             ))}
