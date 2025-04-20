@@ -19,6 +19,7 @@ import ModelBenchmark from "./pages/ModelBenchmark";
 import Chatbot from "./pages/Chatbot";
 import Team from "./pages/Team";
 import Portfolio from "./pages/Portfolio";
+import Onboarding from "./pages/Onboarding";
 import "./App.css";
 
 // Create a client
@@ -32,6 +33,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route element={<MainLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/models" element={<Models />} />
