@@ -1,4 +1,19 @@
-# Welcome to your Lovable project
+# 🤖 Auto Trade Alchemist Bot
+
+An advanced AI-powered trading platform that combines machine learning, sentiment analysis, and automated decision-making for intelligent trading strategies.
+
+## 📖 Documentation
+
+### 🚀 [AI Trading Agent Workflow Guide](./AI_TRADING_AGENT_WORKFLOW.md)
+**Comprehensive end-to-end workflow for building a robust AI trading agent**
+- Complete workflow overview (input → analysis → output)
+- Key components setup (market data, news sentiment, AI decision logic)
+- Required APIs and detailed setup instructions (12Data, NewsAPI, OpenAI, Telegram Bot, n8n)
+- Step-by-step implementation guide
+- Advanced features and optimization strategies
+
+### 📋 [Platform Onboarding Guide](./src/docs/OnboardingGuide.md)
+Get started with the AI Trading Platform interface and features.
 
 ## Project info
 
